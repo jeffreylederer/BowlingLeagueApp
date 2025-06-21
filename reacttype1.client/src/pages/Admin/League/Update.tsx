@@ -5,11 +5,30 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Checkbox, TextInput } from "flowbite-react";
 import { Button } from "flowbite-react";
 import Layout from "@layouts/Layout.tsx";
-import useFetch from '@hooks/useFetch.tsx';
-import updateData from '@components/UpdateData.tsx';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 
+const fetchLeague = async (id: number): Promise<UpdateFormData> => {
+    const response = await fetch(`/api/leagues/${id}`);
+    if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return response.json();
+};
 
+const updateLeague = async ({ id, data }: { id: number, data: UpdateFormData }) => {
+    const response = await fetch(`/api/leagues/${id}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return response.json();
+};
 
 const LeagueUpdate = () => {
 
@@ -21,24 +40,40 @@ const LeagueUpdate = () => {
         register,
         handleSubmit,
         formState: { errors },
-
     } = useForm<UpdateFormData>({
         resolver: zodResolver(UpdateFormDataSchema),
-
     });
 
-   
-    const onSubmit: SubmitHandler<UpdateFormData> = (data) => update(data)
-
     const navigate = useNavigate();
+    const queryClient = useQueryClient();
 
-    const { data, isLoading, error } = useFetch<UpdateFormData>(`/api/leagues/${id}`);
+    const { data, isLoading, error } = useQuery<UpdateFormData>({
+        queryKey: ['league', id],
+        queryFn: () => fetchLeague(id),
+        enabled: !!id,
+    });
+
+    const mutation = useMutation({
+        mutationFn: (formData: UpdateFormData) => updateLeague({ id, data: formData }),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['league', id] });
+            queryClient.invalidateQueries({ queryKey: ['leagueslist'] });
+            navigate("/Admin/Leagues");
+        },
+        onError: (error: unknown) => {
+            setErrorMsg(error instanceof Error ? error.message : String(error));
+        }
+    });
+
+    const onSubmit: SubmitHandler<UpdateFormData> = (formData) => {
+        mutation.mutate(formData);
+    };
 
     if (error)
         return (
             <Layout>
                 <h3>Update membership record</h3>
-                {error}
+                {(error as Error).message}
             </Layout>
         );
 
@@ -50,116 +85,76 @@ const LeagueUpdate = () => {
             </Layout>
         );
 
-       
     if (data) {
         return (
             <Layout>
-
                 <h3>Update record for league {data.leagueName}</h3>
                 <form onSubmit={handleSubmit(onSubmit)} >
                     <input type="hidden" {...register('startWeek')} defaultValue="1" />
                     <table>
-
                         <input type="hidden" {...register("id", { valueAsNumber: true })} defaultValue={data.id} />
                         <tr>
                             <td className="Label">League Name:</td>
-
-                            <td className="Field"><TextInput {...register('leagueName')} defaultValue={data.leagueName} style={{ width: "400px" }} />
-                            </td>
+                            <td className="Field"><TextInput {...register('leagueName')} defaultValue={data.leagueName} style={{ width: "400px" }} /></td>
                         </tr>
-
                         <tr>
                             <td className="Label">Active:</td>
-
                             <td className="Field">
                                 <Checkbox {...register('active')} defaultChecked={data.active} />
                             </td>
                         </tr>
-
                         <tr>
                             <td className="Label">Team Size:</td>
-
-                            <td className="Field"><TextInput type="number" {...register('teamSize')} defaultValue={data.teamSize} />
-                            </td>
+                            <td className="Field"><TextInput type="number" {...register('teamSize')} defaultValue={data.teamSize} /></td>
                         </tr>
-
                         <tr>
                             <td className="Label">Ties Allowed:</td>
-
                             <td className="Field">
                                 <Checkbox {...register('tiesAllowed')} defaultChecked={data.tiesAllowed} />
                             </td>
                         </tr>
-
                         <tr>
                             <td className="Label">Points Count:</td>
-
                             <td className="Field">
                                 <Checkbox {...register('pointsCount')} defaultChecked={data.pointsCount} />
                             </td>
                         </tr>
-
                         <tr>
                             <td className="Label">Points for a Win:</td>
-
-                            <td className="Field"><TextInput {...register('winPoints')} defaultValue={data.winPoints} />
-                            </td>
+                            <td className="Field"><TextInput {...register('winPoints')} defaultValue={data.winPoints} /></td>
                         </tr>
-
                         <tr>
                             <td className="Label">Points for a Tie:</td>
-
-                            <td className="Field"><TextInput {...register('tiePoints')} defaultValue={data.tiePoints} />
-                            </td>
+                            <td className="Field"><TextInput {...register('tiePoints')} defaultValue={data.tiePoints} /></td>
                         </tr>
-
                         <tr>
                             <td className="Label">Points for a Bye:</td>
-
-                            <td className="Field"><TextInput {...register('byePoints')} defaultValue={data.byePoints} />
-                            </td>
+                            <td className="Field"><TextInput {...register('byePoints')} defaultValue={data.byePoints} /></td>
                         </tr>
-
-                        {/*<tr>*/}
-                        {/*    <td className="Label">Start Week:</td>*/}
-
-                        {/*        <td className="Field"><TextInput {...register('startWeek')}  defaultValue=data.startWeek} />*/}
-                        {/*    </td>*/}
-                        {/*</tr>*/}
-
                         <tr>
                             <td className="Label">Points are limited:</td>
-
                             <td className="Field">
                                 <Checkbox {...register('pointsLimit')} defaultChecked={data.pointsLimit} />
                             </td>
                         </tr>
-
                         <tr>
                             <td className="Label"># of Divisions:</td>
-
-                            <td className="Field"><TextInput {...register('divisions')} defaultValue={data.divisions} />
-                            </td>
+                            <td className="Field"><TextInput {...register('divisions')} defaultValue={data.divisions} /></td>
                         </tr>
-
                         <tr>
                             <td className="Label">Playoffs:</td>
-
                             <td className="Field">
                                 <Checkbox {...register('playOffs')} defaultChecked={data.playOffs} />
                             </td>
                         </tr>
-
                         <tr>
                             <td colSpan={2} >
                                 <div className="flex flex-wrap gap-2" >
-                                    <Button outline color="Default" type="submit" >Submit</Button>
+                                    <Button outline color="Default" type="submit" disabled={mutation.isPending}>Submit</Button>
                                     <Button outline color="Default" onClick={() => navigate("/Admin/Leagues")}>Go back to list</Button>
                                 </div>
                             </td>
                         </tr>
-
-
                         <tr><td colSpan={1}>
                             {errors.leagueName && <p className="errorMessage">{errors.leagueName.message}</p>}
                             {errors.teamSize && <p className="errorMessage">{errors.teamSize.message}</p>}
@@ -169,30 +164,13 @@ const LeagueUpdate = () => {
                             {errors.startWeek && <p className="errorMessage">{errors.startWeek.message}</p>}
                             {errors.divisions && <p className="errorMessage">{errors.divisions.message}</p>}
                             <p className="errorMessage">{errorMsg}</p>
+                            {mutation.isError && <p className="errorMessage">{(mutation.error as Error).message}</p>}
                         </td></tr>
-
-
                     </table>
                 </form>
-
-
             </Layout>
-
         );
     }
-
-
-    async function update(data: UpdateFormData) {
-        try {
-            await updateData<UpdateFormData>(data, `/api/leagues/${id}`);
-            navigate("/Admin/Leagues");;
-        }
-        catch (error) {
-            setErrorMsg(`${error}`);
-        }
-    }
 }
-
-
 
 export default LeagueUpdate;

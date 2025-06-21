@@ -20,10 +20,10 @@ namespace ReactType1.Server.Code
         /// </summary>
         /// <param name="id">weekid</param>
         /// <param name="db">context</param>
-        public IDocument CreateDocument(int id, DbLeagueApp db, string site)
+        public async Task<IDocument> CreateDocument(int id, DbLeagueApp db, string site)
         {
-            Schedule? schedule = db.Schedules.Find(id);
-            League? league = db.Leagues.Find(schedule?.Leagueid);
+            Schedule? schedule = await db.Schedules.FindAsync(id);
+            League? league = await db.Leagues.FindAsync(schedule?.Leagueid);
             int? TeamSize = league?.TeamSize;
             List<GetMatchAllView> matches = db.GetMatchAllViews
                      .FromSql($"EXEC GetMatchAll {id}")

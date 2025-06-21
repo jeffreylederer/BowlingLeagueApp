@@ -3,65 +3,147 @@ import { useState, useEffect } from 'react';
 import { useForm, SubmitHandler } from "react-hook-form";
 import { UpdateFormData, UpdateFormDataSchema } from "./UpdateFormData.tsx";
 import { zodResolver } from '@hookform/resolvers/zod';
-import LeagueClass from '@components/LeagueClass.tsx';;
+import LeagueClass from '@components/LeagueClass.tsx';
 import { Membership } from "./Membership.tsx";
 import Layout from '@layouts/Layout.tsx';
 import SubmitButton from '@components/Buttons.tsx';
 import { TeamType } from './TeamType.ts';
 import { GetCount } from '@components/CountMatches.tsx';
-import useFetch from '@hooks/useFetch.tsx';
-import updateData from '@components/UpdateData.tsx';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
+const fetchTeam = async (id: string): Promise<TeamType> => {
+    const response = await fetch(`/api/Teams/getOne/${id}`);
+    if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return response.json();
+};
+
+const fetchMembers = async (id: string): Promise<Membership[]> => {
+    const response = await fetch(`/api/Teams/NotOnTeam/${id}`);
+    if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return response.json();
+};
+
+const updateTeam = async ({ id, data }: { id: string, data: UpdateFormData }) => {
+    const response = await fetch(`/api/Teams/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return response.json();
+};
 
 const TeamUpdate = () => {
     const league = new LeagueClass();
-
     const [errorMsg, setErrorMsg] = useState("");
-
-    const [membership, setMembership] = useState<Membership[]>();
-    const location = useLocation();
+     const location = useLocation();
     const id: string = location.state;
+    const navigate = useNavigate();
+    const queryClient = useQueryClient();
 
+    const { data, isLoading, error } = useQuery<TeamType>({
+        queryKey: ['team', id],
+        queryFn: () => fetchTeam(id),
+        enabled: !!id,
+    });
+
+    const { data: membership, isLoading: membershipIsLoading, error: membershipError } = useQuery<Membership[]>({
+        queryKey: ['teammembership', league.id],
+        queryFn: () => fetchMembers(league.id.toString()),
+        enabled: !!id
+    });
+
+
+
+    const mutation = useMutation({
+        mutationFn: (formData: UpdateFormData) => updateTeam({ id, data: formData }),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['team', id] });
+            queryClient.invalidateQueries({ queryKey: ['teammembership', league.id] });
+            queryClient.invalidateQueries({ queryKey: ['teamlist', league.id] });
+            navigate("/League/Teams");
+        },
+        onError: (error: unknown) => {
+            setErrorMsg(error instanceof Error ? error.message : String(error));
+        }
+    });
 
     const {
         register,
         handleSubmit,
         formState: { errors },
-
+        reset,
     } = useForm<UpdateFormData>({
-        resolver: zodResolver(UpdateFormDataSchema),
+        resolver: zodResolver(UpdateFormDataSchema)
     });
 
-    const onSubmit: SubmitHandler<UpdateFormData> = (data) => update(data)
-
-    const navigate = useNavigate();
-
     useEffect(() => {
-        GetMembers();
-    },[])
+        if (data) {
+            reset({
+                id: data.id,
+                leagueid: data.leagueid,
+                teamNo: data.teamNo,
+                skip: data.skipid,
+                viceSkip: data.viceSkipid,
+                lead: data.leadid,
+                divisionId: data.division,
+            });
+        }
+    }, [data, reset]);
 
-    const { data, isLoading, error } = useFetch<TeamType>(`/api/Teams/getOne/${id}`);
+    const onSubmit: SubmitHandler<UpdateFormData> = (formData) => {
+        switch (league.teamSize) {
+            case 1:
+                break;
+            case 2:
+                if (formData.skip != 0 && formData.lead != 0 && formData.skip == formData.lead) {
+                    setErrorMsg("Skip and Lead have to be different members");
+                    return;
+                }
+                break;
+            case 3:
+                if (formData.skip != 0 && formData.lead != 0 && formData.skip == formData.lead) {
+                    setErrorMsg("Skip and Lead have to be different members");
+                    return;
+                }
+                if (formData.skip != 0 && formData.viceSkip != 0 && formData.skip == formData.viceSkip) {
+                    setErrorMsg("Skip and Vice Skip have to be different members");
+                    return;
+                }
+                if (formData.viceSkip != 0 && formData.lead != 0 && formData.viceSkip == formData.lead) {
+                    setErrorMsg("Vice Skip and Lead have to be different members");
+                    return;
+                }
+                break;
+        }
+        mutation.mutate(formData);
+    };
 
+   
 
     if (error)
-        return <p>{error}</p>;
+        return <p>{(error as Error).message}</p>;
 
-    if (isLoading)
+    if (membershipError)
+        return <p>{(membershipError as Error).message}</p>;
+
+    if (isLoading || membershipIsLoading)
         return <p>Loading...</p>;
-
-    if (data) {
+    if (data != undefined && membership != undefined) {
 
         return (
             <Layout>
-
                 <h3>Update Team {data.teamNo} for league {league.leagueName}</h3>
-
                 <form onSubmit={handleSubmit(onSubmit, (errors) => console.log(errors))} >
                     <input type="hidden" {...register("id", { valueAsNumber: true })} defaultValue={data.id} />
                     <input type="hidden" {...register("leagueid", { valueAsNumber: true })} defaultValue={data.leagueid} />
                     <input type="hidden" {...register("teamNo", { valueAsNumber: true })} defaultValue={data.teamNo} />
-
-
                     <table>
                         <tr>
                             <td className="Label">Skip:</td>
@@ -71,7 +153,7 @@ const TeamUpdate = () => {
                                     <option value={data.skipid} key={data.skipid}>{data.skip}</option>
                                     <option value={data.viceSkipid} key={data.viceSkipid == null ? "viceSkip" : data.viceSkipid} hidden={league.divisions > 1}>{data.viceSkip}</option>
                                     <option value={data.leadid} key={data.leadid == null ? "lead" : data.leadid} hidden={league.divisions > 2}>{data.lead}</option>
-                                    {membership?.map((item) => (
+                                    {membership.map((item) => (
                                         <option value={item.id} key={item.id}>{item.fullName}</option>
                                     ))}
                                     )
@@ -86,7 +168,7 @@ const TeamUpdate = () => {
                                     <option value={data.skipid} key={data.skipid}>{data.skip}</option>
                                     <option value={data.viceSkipid} key={data.viceSkipid == null ? "viceSkip" : data.viceSkipid} hidden={league.divisions > 1}>{data.viceSkip}</option>
                                     <option value={data.leadid} key={data.leadid == null ? "lead" : data.leadid} hidden={league.divisions > 2}>{data.lead}</option>
-                                    {membership?.map((item) => (
+                                    {membership.map((item) => (
                                         <option value={item.id} key={item.id}>{item.fullName}</option>
                                     ))}
                                     )
@@ -101,7 +183,7 @@ const TeamUpdate = () => {
                                     <option value={data.skipid} key={data.skipid}>{data.skip}</option>
                                     <option value={data.viceSkipid} key={data.viceSkipid == null ? "viceSkip" : data.viceSkipid} hidden={league.divisions > 1}>{data.viceSkip}</option>
                                     <option value={data.leadid} key={data.leadid == null ? "lead" : data.leadid} hidden={league.divisions > 2}>{data.lead}</option>
-                                    {membership?.map((item) => (
+                                    {membership.map((item) => (
                                         <option value={item.id} key={item.id}>{item.fullName}</option>
                                     ))}
                                     )
@@ -115,15 +197,15 @@ const TeamUpdate = () => {
                                     <option value="1" key="1">1</option>
                                     <option value="2" key="2" hidden={league.divisions < 2}>2</option>
                                     <option value="3" key="3" hidden={league.divisions < 3}>3</option>
-                                </select></td>
+                                </select>
+                            </td>
                         </tr>
                         <tr hidden={GetCount() == 0} >
                             <input type="hidden" value={data.division} {...register("divisionId")} />
                         </tr>
-
                         <tr>
                             <td colSpan={2}>
-                                <SubmitButton />
+                                <SubmitButton disabled={mutation.isPending} />
                             </td>
                         </tr>
                         <tr>
@@ -138,82 +220,14 @@ const TeamUpdate = () => {
                             </td>
                         </tr>
                     </table>
-                    {
-                        league.teamSize < 3 && <input type="hidden" defaultValue="0" {...register("viceSkip")} />
-                    }
-                    {
-                        league.teamSize < 2 && <input type="hidden" defaultValue="0" {...register("lead")} />
-                    }
+                    {league.teamSize < 3 && <input type="hidden" defaultValue="0" {...register("viceSkip")} />}
+                    {league.teamSize < 2 && <input type="hidden" defaultValue="0" {...register("lead")} />}
                 </form>
                 <p className="errorMessage">{errorMsg}</p>
-
+                {mutation.isError && <p className="errorMessage">{(mutation.error as Error).message}</p>}
             </Layout>
         );
     }
-
-
-    async function update(data: UpdateFormData) {
-        try {
-            switch (league.teamSize) {
-                case 1:
-                    break;
-                case 2:
-                    if (data.skip != 0 && data.lead != 0 && data.skip == data.lead) {
-                        setErrorMsg("Skip and Lead have to be different members");
-                        return;
-                    }
-                    break;
-                case 3:
-                    if (data.skip != 0 && data.lead != 0 && data.skip == data.lead) {
-                        setErrorMsg("Skip and Lead have to be different members");
-                        return;
-                    }
-                    if (data.skip != 0 && data.viceSkip != 0 && data.skip == data.viceSkip) {
-                        setErrorMsg("Skip and Vice Skip have to be different members");
-                        return;
-                    }
-                    if (data.viceSkip != 0 && data.lead != 0 && data.viceSkip == data.lead) {
-                        setErrorMsg("Vice Skip and Lead have to be different members");
-                        return;
-                    }
-                    break;
-            }
-            await updateData<UpdateFormData>(data, `/api/Teams/${id}`);
-            navigate("/League/Teams");;
-        }
-        catch (error) {
-            setErrorMsg(`${error}`);
-        }
-    }
-
-    
-    
-    async function GetMembers() {
-        try {
-            const response = await fetch(`/api/Teams/NotOnTeam/${league.id}`);
-            if (!response.ok) {
-                setErrorMsg(`HTTP error! Status: ${response.status}`);
-                return;
-            }
-            const data = await response.json() as Membership[];
-            setMembership(data);
-        } catch (error) {
-            setErrorMsg(`Error:, ${error}`);
-        }
-    }
-
-
-
-
-
-
-
-}
-
-   
-
-   
-
-
+};
 
 export default TeamUpdate;

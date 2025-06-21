@@ -29,6 +29,21 @@ namespace ReactType1.Server.Controllers
         }
 
         // GET: Matches
+        [HttpGet("GetOneMatch/{id}")]
+        public async Task<OneMatchView> GetOneMatch(int id)
+        {
+            var list = await _context.OneMatchViews
+                     .FromSql($"EXEC OneMatch {id}").ToListAsync();
+            var item = list[0];
+                    
+            if (item == null)
+            {
+                throw new Exception("Match not found");
+            }
+            return item;
+        }
+
+        // GET: Matches
         [HttpGet("GetAllMatches/{id}")]
         public async Task<int> GetAllMatches(int id)
         {
@@ -47,11 +62,11 @@ namespace ReactType1.Server.Controllers
 
         // GET: Matches
         [HttpGet("Reorder{id}")]
-        public async Task<IActionResult> GetReorder(int id)
+        public async Task<ActionResult<IEnumerable<OneMatchWeekView>>> GetReorder(int id)
         {
             var match = await _context.Matches.FindAsync(id);
             if (match == null)
-                return NotFound();
+                return StatusCode(400, "could not find a match");
             var weekMatches = _context.Matches.Where(x => x.WeekId == match.WeekId);
             var match1 = weekMatches.First(x => x.Rink == match.Rink - 1);
             match1.Rink = match.Rink;
@@ -67,21 +82,21 @@ namespace ReactType1.Server.Controllers
             }
 
 
-            return Ok();
+            return Ok(weekMatches);
         }
 
         // GET: Matches
         [HttpGet("Byes/{id}")]
-        public String Byes(int id)
+        public async Task<ActionResult<string>> Byes(int id)
         {
             
             QuestPDF.Settings.License = LicenseType.Community;
             var report = new ByesReport();
             var site = _configuration.GetValue<string>("SiteInfo:clubname")??"Unknown club";
-            var document = report.CreateDocument(id, _context, site);
+            var document = await report.CreateDocument(id, _context, site);
             byte[] pdfBytes = document.GeneratePdf();
             var results = Convert.ToBase64String(pdfBytes);
-            return results;
+            return Ok(results);
         }
 
         // GET: Matches/Details/5
@@ -160,11 +175,11 @@ namespace ReactType1.Server.Controllers
 
         // GET: Players/Details/5
         [HttpGet("Standings/{id}")]
-        public string? Standings(int? id)
+        public async Task<ActionResult<string>> Standings(int? id)
         {
             if (id == null)
             {
-                return null;
+                return StatusCode(500, "Bad value");
             }
             Schedule? schedule = _context.Schedules.Find(id);
             League? league = _context.Leagues.Find(schedule?.Leagueid);
@@ -174,7 +189,7 @@ namespace ReactType1.Server.Controllers
             {
                 var report = new StandingsReport();
                 var site = _configuration.GetValue<string>("SiteInfo:clubname") ?? "Unknown club";
-                var document = report.CreateDocument(id.Value, _context, site);
+                var document = await report.CreateDocument(id.Value, _context, site);
                 byte[] pdfBytes = document.GeneratePdf();
                 results = Convert.ToBase64String(pdfBytes);
             }
@@ -187,50 +202,45 @@ namespace ReactType1.Server.Controllers
                 byte[] pdfBytes1 = document.GeneratePdf();
                 results = Convert.ToBase64String(pdfBytes1);
             }
-            return results;
+            return Ok(results);
         }
 
         [HttpGet("ScoreCard/{id}")]
-        public string? ScoreCard(int? id)
+        public async Task<ActionResult<string>> ScoreCard(int? id)
         {
             if (id == null)
             {
-                return null;
+                return StatusCode(500, "Bad value");
             }
             QuestPDF.Settings.License = LicenseType.Community;
             var site = _configuration.GetValue<string>("SiteInfo:clubname") ?? "Unknown club";
             var report = new ScorecardReport();
-            var document = report.CreateDocument(id.Value, _context, site);
+            var document = await report.CreateDocument(id.Value, _context, site);
             byte[] pdfBytes = document.GeneratePdf();
             var results = Convert.ToBase64String(pdfBytes);
-            return results;
+            return Ok(results);
         }
 
         [HttpGet("ScheduleReport/{id}")]
-        public string? ScheduleReport(int? id)
+        public async Task<ActionResult<string>> ScheduleReport(int? id)
         {
             if (id == null)
             {
-                return null;
+                return StatusCode(500, "Bad value");
             }
             QuestPDF.Settings.License = LicenseType.Community;
             var site = _configuration.GetValue<string>("SiteInfo:clubname") ?? "Unknown club";
             var report = new ScheduleReport();
             try
             {
-                var document = report.CreateDocument(id.Value, _context, site);
+                var document = await report.CreateDocument(id.Value, _context, site);
                 byte[] pdfBytes = document.GeneratePdf();
                 var results = Convert.ToBase64String(pdfBytes);
-                return results;
+                return Ok(results);
             }
             catch (Exception ex)
             {
-                StringBuilder str = new(ex.Message);
-                while (ex.InnerException != null) {
-                    str.Append(", " +ex.InnerException.Message);
-                    ex = ex.InnerException;
-                }
-                return $"Exception: {str.ToString()}";
+                return StatusCode(400,ex.Message);
             }
         }
 

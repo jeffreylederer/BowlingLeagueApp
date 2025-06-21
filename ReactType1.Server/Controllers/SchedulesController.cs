@@ -130,7 +130,7 @@ namespace ReactType1.Server.Controllers
 
         // GET: Schedules/Delete/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<ActionResult<ScheduleType>> Delete(int id)
         {
             var item = await _context.Schedules.FindAsync(id);
             if (item == null)
@@ -142,7 +142,7 @@ namespace ReactType1.Server.Controllers
             try
             {
                 await _context.SaveChangesAsync();
-                return Ok();
+                return Ok(item);
             }
             catch (DbUpdateException)
             {

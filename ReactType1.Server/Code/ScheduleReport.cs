@@ -19,11 +19,11 @@ namespace ReactType1.Server.Code
         /// </summary>
         /// <param name="id">leagueid</param>
         /// <param name="db">context</param>
-        public IDocument CreateDocument(int id, DbLeagueApp db, string site)
+        public async Task<IDocument> CreateDocument(int id, DbLeagueApp db, string site)
         {
             League? league = db.Leagues.Find(id);
             int leagueid = league == null ? 0 : league.Id;
-            var schedule = db.Schedules.Where(x=>x.Leagueid== leagueid).OrderBy(x => x.GameDate).ToList();
+            var schedule = await db.Schedules.Where(x => x.Leagueid == leagueid).OrderBy(x => x.GameDate).ToListAsync();
 
             List<MatchScheduleView> matches = [.. db.MatchScheduleViews.FromSql($"EXEC MatchSchedule {leagueid}")];
 

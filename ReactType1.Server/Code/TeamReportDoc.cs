@@ -16,9 +16,9 @@ namespace ReactType1.Server.Code
 
 
 
-        public IDocument CreateDocument(int id, DbLeagueApp db, string site)
+        public async Task<IDocument> CreateDocument(int id, DbLeagueApp db, string site)
         {
-            League? league = db.Leagues.Find(id);
+            League? league = await db.Leagues.FindAsync(id);
 
             string? LeagueName = league?.LeagueName;
             int? TeamSize = league?.TeamSize;

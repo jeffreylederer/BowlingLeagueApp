@@ -3,31 +3,40 @@ import { FormData } from "./FormData.tsx";
 import { useNavigate } from "react-router-dom";
 import Layout from "@layouts/Layout.tsx";
 import { Button } from "flowbite-react";
-import useFetch from '@hooks/useFetch.tsx';
+import { useQuery } from '@tanstack/react-query'; // Add useQuery import
 
+// Fetch function for league details
+const fetchLeague = async (id: number): Promise<FormData> => {
+    const response = await fetch(`/api/leagues/${id}`);
+    if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return response.json();
+};
 
 const LeagueDetails = () => {
     const location = useLocation();
     const id: number = location.state;
     const navigate = useNavigate();
-    const { data, isLoading, error } = useFetch<FormData>(`/api/leagues/${id}`);
+
+    // Replace useFetch with useQuery
+    const { data, isLoading, error } = useQuery<FormData>({
+        queryKey: ['league', id],
+        queryFn: () => fetchLeague(id),
+        enabled: !!id,
+    });
 
     if (error)
         return (
-            <p>{error}</p>
-                
-           
+            <p>{(error as Error).message}</p>
         );
 
     if (isLoading)
         return (
-            
-                <p>Loading...</p>
-       
+            <p>Loading...</p>
         );
 
     if (data) {
-
         return (
             <Layout>
                 <h3>Details for league {data.leagueName}</h3>
@@ -35,7 +44,6 @@ const LeagueDetails = () => {
                     <tr>
                         <td className="Label">Active:</td>
                         <td className="Field">{data.active ? "Yes" : "No"}</td>
-
                     </tr>
                     <tr>
                         <td className="Label">Team Size:</td>
@@ -88,10 +96,6 @@ const LeagueDetails = () => {
             </Layout>
         );
     }
-
-  
-  
 }
-
 
 export default LeagueDetails;

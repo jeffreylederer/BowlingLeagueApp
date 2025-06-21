@@ -1,19 +1,32 @@
 import { Link } from 'react-router-dom';
 import { UpdateFormData } from "./UpdateFormData.tsx";
 import Layout from "@layouts/Layout.tsx";
-import useFetch from '@hooks/useFetch.tsx';
+import { useQuery } from '@tanstack/react-query'; // Add useQuery import
+
+// Fetch function for leagues
+const fetchLeagues = async (): Promise<UpdateFormData[]> => {
+    const response = await fetch('/api/leagues');
+    if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return response.json();
+};
 
 function League() {
-
-    const { data, isLoading, error } = useFetch<UpdateFormData[]>(`/api/leagues`);
+    // Replace useFetch with useQuery
+    const { data, isLoading, error } = useQuery<UpdateFormData[]>({
+        queryKey: ['leagueslist'],
+        queryFn: fetchLeagues,
+        staleTime: 1000 * 60, // 1 minute
+    });
 
     if (isLoading)
         return <p aria-label="Loading">Loading...</p>;
 
     if (error)
-        return <p aria-label="Error">Return Error: {error}</p>;
+        return <p aria-label="Error">Return Error: {(error as Error).message}</p>;
 
-    if (data === null || (Array.isArray(data) && data.length === 0))
+    if (data === undefined || data === null || (Array.isArray(data) && data.length === 0))
         return (
             <Layout>
             <h3 id="tableLabel">Leagues</h3>
@@ -57,9 +70,6 @@ function League() {
                 </table>
             </Layout>
         );
-   
-
-   
 }
 
 export default League;

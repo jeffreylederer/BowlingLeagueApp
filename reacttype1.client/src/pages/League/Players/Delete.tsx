@@ -1,27 +1,66 @@
-import { useLocation, useNavigate, } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import LeagueClass from "@components/LeagueClass";
 import Layout from '@layouts/Layout.tsx';
 import UpdateFormData from './UpdateFormData.tsx';
-import useFetch from '@hooks/useFetch.tsx';
-import deleteData from '@components/deleteData.tsx';
 import { useState } from 'react';
 import { DeleteButton } from '@components/Buttons.tsx';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+
+const fetchPlayer = async (id: number): Promise<UpdateFormData> => {
+    const response = await fetch(`/api/players/GetOne/${id}`);
+    if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return response.json();
+};
+
+const deletePlayer = async (id: number) => {
+    const response = await fetch(`/api/players/${id}`, {
+        method: 'DELETE'
+    });
+    if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return response.json();
+};
 
 const PlayersDelete = () => {
     const location = useLocation();
     const id: number = location.state;
     const league = new LeagueClass();
     const [errorMsg, setErrorMsg] = useState('');
-
     const navigate = useNavigate();
+    const queryClient = useQueryClient();
 
-    const { data, isLoading, error } = useFetch<UpdateFormData>(`/api/players/GetOne/${id}`);
+    // useQuery for fetching player data
+    const { data, isLoading, error } = useQuery<UpdateFormData>({
+        queryKey: ['player', id],
+        queryFn: () => fetchPlayer(id),
+        enabled: !!id,
+    });
+
+    // useMutation for deleting player
+    const mutation = useMutation({
+        mutationFn: () => deletePlayer(id),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['players', league.id] });
+            queryClient.invalidateQueries({ queryKey: ['playerslist', league.id] });
+            navigate("/league/players");
+        },
+        onError: (error: unknown) => {
+            setErrorMsg(error instanceof Error ? error.message : String(error));
+        }
+    });
+
+    function deleteItem() {
+        mutation.mutate();
+    }
 
     if (error)
         return (
             <Layout>
                 <h3>Delete Member</h3>
-                {error}
+                {(error as Error).message}
             </Layout>
         );
 
@@ -44,30 +83,17 @@ const PlayersDelete = () => {
                     </tr>
                     <tr>
                         <td colSpan={2} >
-                            <DeleteButton DeleteItem={deleteItem} />
+                            <DeleteButton DeleteItem={deleteItem} disabled={mutation.isPending} />
                         </td>
                     </tr>
-                </table>;
+                </table>
                 <p>{errorMsg}</p>
+                {mutation.isError && <p className="errorMessage">{(mutation.error as Error).message}</p>}
             </Layout>
         );
     }
 
-
-    async function deleteItem() {
-        try {
-            await deleteData(`/api/players/${id}`);
-            navigate("/league/players");
-        }
-        catch (error) {
-            setErrorMsg(`${error}`);
-        }
-     }
-}
-
-
-    
-
-
+    return null;
+};
 
 export default PlayersDelete;

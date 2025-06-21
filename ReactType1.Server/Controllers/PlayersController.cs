@@ -117,7 +117,7 @@ namespace ReactType1.Server.Controllers
             try
             {
                 await _context.SaveChangesAsync();
-                return NoContent();
+                return Ok(item);
             }
             catch(DbUpdateException )
             {

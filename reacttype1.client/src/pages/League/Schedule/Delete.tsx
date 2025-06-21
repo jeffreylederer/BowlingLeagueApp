@@ -5,70 +5,106 @@ import LeagueClass from '@components/LeagueClass.tsx';;
 import { DeleteButton } from '@components/Buttons.tsx';
 import Layout from '@layouts/Layout.tsx';
 import convertDate from '@components/convertDate.tsx';
-import deleteData from '@components/deleteData.tsx';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
+const fetchSchedule = async (id: number): Promise<UpdateFormData | undefined> => {
+    const schedulesStr = localStorage.getItem("schedule");
+    if (schedulesStr) {
+        const schedules: UpdateFormData[] = JSON.parse(schedulesStr);
+        return schedules.find(x => x.id == id);
+    }
+    const response = await fetch(`/api/Schedules/${id}`);
+    if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return response.json();
+};
 
+const deleteSchedule = async (id: number) => {
+    const response = await fetch(`/api/Schedules/${id}`, {
+        method: 'DELETE'
+    });
+    if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return response.json();
+};
 
 const ScheduleDelete = () => {
     const league = new LeagueClass();
     const location = useLocation();
     const id: number = location.state;
-    const data: UpdateFormData[] = JSON.parse(localStorage.getItem("schedule") as string);
-    const schedule = data.find(x => x.id == id);
     const [errorMsg, SeterrorMsg] = useState("");
-    
     const navigate = useNavigate();
+    const queryClient = useQueryClient();
 
-    
+    const { data: schedule, isLoading, error } = useQuery<UpdateFormData | undefined>({
+        queryKey: ['schedule', id],
+        queryFn: () => fetchSchedule(id),
+        enabled: !!id,
+    });
 
-          
+    const mutation = useMutation({
+        mutationFn: () => deleteSchedule(id),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['schedules', league.id] });
+            navigate("/League/Schedule");
+        },
+        onError: (error: unknown) => {
+            SeterrorMsg(error instanceof Error ? error.message : String(error));
+        }
+    });
+
+    function deleteItem() {
+        mutation.mutate();
+    }
+
+    if (error)
+        return (
+            <Layout>
+                <h3>Delete game date in league {league.leagueName}</h3>
+                <p className="errorMessage">{(error as Error).message}</p>
+            </Layout>
+        );
+
+    if (isLoading)
+        return (
+            <Layout>
+                <h3>Delete game date in league {league.leagueName}</h3>
+                <p>Loading...</p>
+            </Layout>
+        );
+
     if (schedule) {
         return (
             <Layout>
                 <h3>Delete game date in league {league.leagueName}</h3>
-
                 <table>
                     <tr>
                         <td className="Label">Game Date:</td>
-
                         <td className="Field">{convertDate(schedule.gameDate)}</td>
                     </tr>
                     <tr>
                         <td className="Label">playOffs:</td>
                         <td className="Field">{schedule.playOffs ? "Yes" : "No"}</td>
-
                     </tr>
                     <tr>
                         <td className="Label">Cancelled:</td>
                         <td className="Field">{schedule.cancelled ? "Yes" : "No"}</td>
                     </tr>
-
                     <tr>
                         <td colSpan={2} style={{ textAlign: "center" }}>
-                            <DeleteButton DeleteItem={deleteItem} />
+                            <DeleteButton DeleteItem={deleteItem} disabled={mutation.isPending} />
                         </td>
                     </tr>
                 </table>
                 <p className="errorMessage">{errorMsg}</p>
+                {mutation.isError && <p className="errorMessage">{(mutation.error as Error).message}</p>}
             </Layout>
         );
     }
 
-
-    
-
-    
-    async function deleteItem() {
-
-        try {
-            await deleteData(`/api/Schedules/${id}`);
-            navigate("/League/Schedule");
-        }
-        catch (error) {
-            SeterrorMsg(`${error}`);
-        }
-    }
+    return null;
 }
-
 
 export default ScheduleDelete;

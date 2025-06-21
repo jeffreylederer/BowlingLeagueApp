@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "@tanstack/react-query": "^5.80.10",
     "@testing-library/dom": "^10.4.0",
     "fs": "^0.0.1-security",
     "happy-dom": "^17.2.2",

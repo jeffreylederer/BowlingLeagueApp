@@ -8,8 +8,19 @@ import SubmitButton from '@components/Buttons.tsx';
 import Layout from '@layouts/Layout.tsx';
 import { UpdateFormData } from "./UpdateFormData.tsx";
 import { useState } from 'react';
-import createData from '@components/CreateData.tsx';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
+const createSchedule = async (data: FormData) => {
+    const response = await fetch('/api/Schedules', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return response.json();
+};
 
 const ScheduleCreate = () => {
    const {
@@ -20,7 +31,8 @@ const ScheduleCreate = () => {
     });
     const navigate = useNavigate();
     const league = new LeagueClass();
- 
+    const queryClient = useQueryClient();
+
     const zeroPad = (num: number): string => {
         const x: string = num.toString();
         if (x.length == 2)
@@ -41,20 +53,20 @@ const ScheduleCreate = () => {
     const [errorMsg, setErrorMsg] = useState<string>('');
     const defaultDate: string = today();
 
-    async function create(data: FormData) {
-        try {
-            await createData(data, `/api/Schedules`);
+    const mutation = useMutation({
+        mutationFn: createSchedule,
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['schedules', league.id] });
             navigate("/League/Schedule");
+        },
+        onError: (error: unknown) => {
+            setErrorMsg(error instanceof Error ? error.message : String(error));
         }
-        catch (error) {
-            setErrorMsg(`${error}`);
-        }
-    }
+    });
 
-    const onSubmit: SubmitHandler<FormData> = (data) => create(data)
-        
-    
-    
+    const onSubmit: SubmitHandler<FormData> = (data) => {
+        mutation.mutate(data);
+    };
 
     return (
         <Layout>
@@ -64,47 +76,35 @@ const ScheduleCreate = () => {
                     <input type="hidden" defaultValue={league.id} {...register('leagueid')} />
                     <tr>
                         <td className="Label">Game Date:</td>
-
                         <td className="Field">
                             <TextInput type="date" {...register('gameDate')} defaultValue={defaultDate} />
                         </td>
                     </tr>
-
                     <tr>
                         <td className="Label">Playoffs:</td>
-
                         <td className="Field">
                             <Checkbox {...register('playOffs')} />
                         </td>
                     </tr>
-                
                     <tr>
                         <td className="Label">Cancelled:</td>
-
                         <td className="Field">
                             <Checkbox {...register('cancelled')}  />
                         </td>
                     </tr>
-
                     <tr>
                         <td colSpan={2}>
-                            <SubmitButton />
+                            <SubmitButton disabled={mutation.isPending} />
                         </td>
                     </tr>
                     <td colSpan={2}>
-                      
                         <p className="errorMessage">{errorMsg}</p>
+                        {mutation.isError && <p className="errorMessage">{(mutation.error as Error).message}</p>}
                     </td>
-
                 </table>
             </form>
-            
         </Layout>
     );
-
-  
 }
-
-
 
 export default ScheduleCreate;

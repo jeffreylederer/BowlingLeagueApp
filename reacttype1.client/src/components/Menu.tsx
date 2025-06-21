@@ -2,6 +2,7 @@
 import LeagueClass from "@components/LeagueClass";
 import UserClass  from "@components/UserClass";
 import { NavLink, useNavigate } from "react-router-dom";
+import { GetCount } from '@components/CountMatches.tsx';
 
 
 function Menu() {
@@ -52,9 +53,9 @@ function Menu() {
                                     <li><NavLink className="dropdown-item" to="/League/Players">Players</NavLink></li>
                                     <li><NavLink className="dropdown-item" to="/League/Schedule">Schedule</NavLink></li>
                                     <li><NavLink className="dropdown-item" to="/League/Teams">Teams</NavLink></li>
-                                    <li><NavLink className="dropdown-item" to="/League/Matches?id=0">Matches</NavLink></li>
-                                    <li><a className="dropdown-item" target='blank' href="/League/Byes">Byes Report</a></li>
-                                    <li><a className="dropdown-item" target='blank' href="/League/ScheduleReport">Schedule Report</a></li>
+                                    <li hidden={GetCount()==0 }><NavLink className="dropdown-item" to="/League/Matches?id=0">Matches</NavLink></li>
+                                    <li hidden={GetCount() == 0}><a className="dropdown-item" target='blank' href="/League/Byes">Byes Report</a></li>
+                                    <li hidden={GetCount() == 0}><a className="dropdown-item" target='blank' href="/League/ScheduleReport">Schedule Report</a></li>
                                     <li style={{ display: showAdmin ? "inline" : "none" }}>---------------------</li>
                                     <li style={{ display: showAdmin ? "inline" : "none" }}><NavLink className="dropdown-item" to="/League/CreateMatches">Create Matches</NavLink></li>
                                     <li style={{ display: showAdmin ? "inline" : "none" }}><NavLink className="dropdown-item" to="/League/ClearMatches">Delete Matches</NavLink></li>

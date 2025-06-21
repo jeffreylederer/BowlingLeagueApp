@@ -79,16 +79,16 @@ namespace ReactType1.Server.Controllers
 
         // GET: Players/Details/5
         [HttpGet("TeamReport/{id}")]
-        public string? TeamReport(int? id)
+        public async Task<ActionResult<string>> TeamReport(int? id)
         {
             if (id == null)
             {
-                return null;
+                return StatusCode(500, "Bad value");
             }
             QuestPDF.Settings.License = LicenseType.Community;
             string? site = _configuration.GetValue<string>("SiteInfo:clubname");
             var report = new TeamReportDoc();
-            var document = report.CreateDocument(id.Value, _context, site ?? "Unknown");
+            var document = await report.CreateDocument(id.Value, _context, site ?? "Unknown");
             byte[] pdfBytes = document.GeneratePdf();
             var results = Convert.ToBase64String(pdfBytes);
             return results;
@@ -172,7 +172,7 @@ namespace ReactType1.Server.Controllers
 
         // GET: Teams/Delete/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<ActionResult<TeamType>> Delete(int id)
         {
             var item = await _context.Teams.FindAsync(id);
             if (item == null)
@@ -194,7 +194,8 @@ namespace ReactType1.Server.Controllers
             {
                 return StatusCode(500, ex.Message);
             }
-            return await Reorder(item.Leagueid);
+            await Reorder(item.Leagueid);
+            return Ok(item);
 
         }
 

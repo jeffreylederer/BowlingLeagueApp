@@ -3,28 +3,61 @@ import { useState } from 'react';
 import { FormData } from "./FormData.tsx";
 import {DeleteButton} from '@components/Buttons.tsx';
 import Layout from "@layouts/Layout.tsx";
-import useFetch from '@hooks/useFetch.tsx';
-import Delete from '@components/deleteData.tsx';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
+const fetchLeague = async (id: number): Promise<FormData> => {
+    const response = await fetch(`/api/leagues/${id}`);
+    if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return response.json();
+};
 
+const deleteLeague = async (id: number) => {
+    const response = await fetch(`/api/leagues/${id}`, {
+        method: 'DELETE'
+    });
+    if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return response.json();
+};
 
 const LeagueDelete = () => {
     const location = useLocation();
     const id: number = location.state;
     const [errorMsg, setErrorMsg] = useState('');
-    
-
-    
-    const { data, isLoading, error } = useFetch<FormData>(`/api/leagues/${id}`);
-
-
     const navigate = useNavigate();
+    const queryClient = useQueryClient();
+
+    // useQuery for fetching league data
+    const { data, isLoading, error } = useQuery<FormData>({
+        queryKey: ['league', id],
+        queryFn: () => fetchLeague(id),
+        enabled: !!id,
+    });
+
+    // useMutation for deleting league
+    const mutation = useMutation({
+        mutationFn: () => deleteLeague(id),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['leagueslist'] });
+            navigate("/Admin/leagues");
+        },
+        onError: (error: unknown) => {
+            setErrorMsg(error instanceof Error ? error.message : String(error));
+        }
+    });
+
+    function DeleteItem() {
+        mutation.mutate();
+    }
 
     if (error)
         return (
             <Layout>
                 <h3>Update membership record</h3>
-                {error}
+                {(error as Error).message}
             </Layout>
         );
 
@@ -35,19 +68,15 @@ const LeagueDelete = () => {
                 <p>Loading...</p>
             </Layout>
         );
+
     if (data) {
-
-
-
         return (
             <Layout>
                 <h3>Delete league {data.leagueName}</h3>
                 <table className="toLeft">
-
                     <tr>
                         <td className="Label">Active:</td>
                         <td className="Field">{data.active ? "Yes" : "No"}</td>
-
                     </tr>
                     <tr>
                         <td className="Label">Team Size:</td>
@@ -91,30 +120,15 @@ const LeagueDelete = () => {
                     </tr>
                     <tr>
                         <td colSpan={2} >
-
-                            <DeleteButton DeleteItem={DeleteItem} />
+                            <DeleteButton DeleteItem={DeleteItem} disabled={mutation.isPending} />
                         </td>
                     </tr>
                 </table>
                 <p className="errorMessage">{errorMsg}</p>
+                {mutation.isError && <p className="errorMessage">{(mutation.error as Error).message}</p>}
             </Layout>
         );
     }
-
-   
-
-    async function DeleteItem() {
-        try {
-            await Delete(`/api/leagues/${id}`);
-            navigate("/Admin/leagues");
-        }
-        catch (error) {
-            setErrorMsg(`${error}`);
-        }
-
-      
-    }
 }
-
 
 export default LeagueDelete;

@@ -1,6 +1,5 @@
 import { useNavigate } from "react-router-dom";
 import { useForm, SubmitHandler } from "react-hook-form";
-import createData from '@components/CreateData.tsx';
 import { FormData, FormDataSchema } from "./FormData.tsx";
 import { Membership } from "./Membership.tsx";
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -8,9 +7,73 @@ import { useState } from 'react';
 import LeagueClass from '@components/LeagueClass.tsx';;
 import SubmitButton from '@components/Buttons.tsx';
 import Layout from '@layouts/Layout.tsx';
-import useFetch from '@hooks/useFetch.tsx'
+
+
+import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
+
 
 const TeamsCreate = () => {
+    const createTeam = async (data: FormData) => {
+        switch (league.teamSize) {
+            case 1:
+                break;
+            case 2:
+                if (data.skip != 0 && data.lead != 0 && data.skip == data.lead) {
+                    setErrorMsg("Skip and Lead have to be  different members");
+                    return;
+                }
+                break;
+            case 3:
+                if (data.skip != 0 && data.lead != 0 && data.skip == data.lead) {
+                    setErrorMsg("Skip and Lead have to be  different members");
+                    return;
+                }
+                if (data.skip != 0 && data.viceSkip != 0 && data.skip == data.viceSkip) {
+                    setErrorMsg("Skip and Vice Skip have to be  different members");
+                    return;
+                }
+                if (data.viceSkip != 0 && data.lead != 0 && data.viceSkip == data.lead) {
+                    setErrorMsg("Vice Skip and Lead have to be  different members");
+                    return;
+                }
+                break;
+        };
+
+        const response = await fetch(`/api/Teams`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data),
+        });
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    };
+    const queryClient = useQueryClient();
+
+    const mutation = useMutation({
+        mutationFn: createTeam,
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['createTeams'] });
+            queryClient.invalidateQueries({ queryKey: ['teammembership', league.id] });
+            queryClient.invalidateQueries({ queryKey: ['teamlist', league.id] });
+            navigate("/League/Teams");
+        },
+        onError: (error: unknown) => {
+            setErrorMsg(error instanceof Error ? error.message : String(error));
+        }
+    });
+
+    const fetchembers = async (): Promise<Membership[]> => {
+        const response = await fetch(`/api/Teams/NotOnTeam/${league.id}`);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    };
+
+
+
     const {
         register,
         handleSubmit,
@@ -19,18 +82,24 @@ const TeamsCreate = () => {
         resolver: zodResolver(FormDataSchema),
     });
     const league = new LeagueClass();
-    const onSubmit: SubmitHandler<FormData> = (data) => create(data);
+    const onSubmit: SubmitHandler<FormData> = (data) => {
+        mutation.mutate(data);
+    };
+
     const [errorMsg, setErrorMsg] = useState("");
 
     const navigate = useNavigate();
+    const { data, isLoading, error, isPending } = useQuery<Membership[]>({
+        queryKey: ['teammembership'],
+        queryFn: fetchembers
+    });
 
-    const { data, isLoading, error } = useFetch<Membership[]>(`/api/Teams/NotOnTeam/${league.id}`);
+   
+    if (isLoading)
+        return <p aria-label="Loading">Loading...</p>;
 
     if (error)
-        return <p>{error}</p>;
- 
-    if (isLoading)
-        return  <p>Loading...</p>;
+        return <p aria-label="Error">Return Error: {(error as Error).message}</p>;
 
      
     return (
@@ -90,7 +159,7 @@ const TeamsCreate = () => {
                 
                     <tr>
                         <td colSpan={2} >
-                            <SubmitButton/>
+                            <SubmitButton disabled={isPending} />
                         </td>
                     </tr>
                     <tr>
@@ -120,40 +189,7 @@ const TeamsCreate = () => {
         </Layout>
     );
 
-    async function create(data: FormData) {
-        switch (league.teamSize) {
-            case 1:
-                break;
-            case 2:
-                if (data.skip != 0 && data.lead != 0 && data.skip == data.lead) {
-                    setErrorMsg("Skip and Lead have to be  different members");
-                    return;
-                }
-                break;
-            case 3:
-                if (data.skip != 0 && data.lead != 0 && data.skip == data.lead) {
-                    setErrorMsg("Skip and Lead have to be  different members");
-                    return;
-                }
-                if (data.skip != 0 && data.viceSkip != 0 && data.skip == data.viceSkip) {
-                    setErrorMsg("Skip and Vice Skip have to be  different members");
-                    return;
-                }
-                if (data.viceSkip != 0 && data.lead != 0 && data.viceSkip == data.lead) {
-                    setErrorMsg("Vice Skip and Lead have to be  different members");
-                    return;
-                }
-                break;
-        }
-        try {
-            await createData < FormData>(data, `/api/Teams`);
-            navigate("/League/Teams");
-
-        }
-        catch (error) {
-            setErrorMsg(`${error}`);
-        }
-    }
+   
 
     
 

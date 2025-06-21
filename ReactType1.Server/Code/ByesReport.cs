@@ -21,11 +21,11 @@ namespace ReactType1.Server.Code
         /// </summary>
         /// <param name="id">leagueid</param>
         /// <param name="db">context</param>
-        public IDocument CreateDocument(int id, DbLeagueApp db, string site)
+        public async Task<IDocument> CreateDocument(int id, DbLeagueApp db, string site)
         {
-            League? league = db.Leagues
+            League? league = await  db.Leagues
                 .Include(l => l.Teams)
-                .Where(x => x.Id == id).FirstOrDefault();
+                .Where(x => x.Id == id).FirstOrDefaultAsync();
             string? LeagueName = league?.LeagueName;
             if (league?.Teams.Count % 2 == 0)
             {

@@ -1,32 +1,42 @@
-import useFetchPDF from '@hooks/useFetchPDF';
-import { useLocation} from "react-router-dom";
+import { useQuery } from '@tanstack/react-query';
+import LeagueClass from "@components/LeagueClass.tsx";
+import { Spinner } from "flowbite-react";
 
+const fetchPDF = async (id: number): Promise<string> => {
+    const response = await fetch(`/api/Matches/ScoreCard/${id}`);
+    if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return response.text();
+};
 
 function ScoreCard() {
-    const location = useLocation();
-    const id: string = location.search.substring(4);
+    const league = new LeagueClass();
 
+    const { data, isLoading, isError, error } = useQuery<string>({
+        queryKey: ['ScheduleReport-pdf', league.id],
+        queryFn: () => fetchPDF(league.id),
+        enabled: !!league.id
+    },
+    );
 
-
-
-    const { data, isLoading, error } = useFetchPDF(`/api/Matches/ScoreCard/${id}`);
 
     if (isLoading) {
-        return;
+        return (
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '400px' }}>
+                <Spinner size="xl" />
+            </div>
+        );
     }
-    if (error) {
-        alert(`Error: ${error}`)
-        return;
+    if (isError) {
+        return <p className="errorMessage">{error instanceof Error ? error.message : "An error occurred."}</p>;
     }
 
-    
+
 
     return (
-        <embed src={!data  ? 'No data generated' : data} type="application/pdf" width='1000' height='800' />
-
+        <embed src={!data ? 'No data generated' : `data:application/pdf;base64,${data}`} type="application/pdf" width='1000' height='800' />
     );
 }
-
-
 
 export default ScoreCard;

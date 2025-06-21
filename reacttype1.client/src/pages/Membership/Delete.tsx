@@ -2,25 +2,60 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { ListData } from "./ListData.tsx";
 import Layout from '@layouts/Layout.tsx';
 import { DeleteButton } from '@components/Buttons.tsx';
-import useFetch from '@hooks/useFetch.tsx';
-import deleteData from '@components/deleteData.tsx';
 import { useState } from 'react';
-
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 const MembershipDelete = () => {
     const location = useLocation();
     const id: number = location.state;
     const [errorMsg, setErrorMsg] = useState('');
-   
     const navigate = useNavigate();
+    const queryClient = useQueryClient();
 
-    const { data, isLoading, error } = useFetch<ListData>(`/api/Memberships/${id}`);
+    // Fetch membership data
+    const { data, isLoading, isError, error } = useQuery<ListData>({
+        queryKey: ['membership', id],
+        queryFn: async () => {
+            const response = await fetch(`/api/Memberships/${id}`);
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(errorText || 'Failed to fetch membership');
+            }
+            return response.json();
+        },
+    });
 
-    if (error)
+    // Mutation for deleting membership
+    const mutation = useMutation({
+        mutationFn: async () => {
+            const response = await fetch(`/api/Memberships/${id}`, {
+                method: 'DELETE',
+            });
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(errorText || 'Failed to delete membership');
+            }
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['membershiplist'] });
+            navigate("/Membership");
+        },
+        onError: (error) => {
+            setErrorMsg(error.message || String(error));
+        },
+    });
+
+    function deleteItem() {
+        mutation.mutate();
+    }
+
+    if (isError)
         return (
             <Layout>
                 <h3>Delete Member</h3>
-                {error}
+                <p className="errorMessage">
+                    {error instanceof Error ? error.message : "An error occurred while loading the member."}
+                </p>
             </Layout>
         );
 
@@ -33,21 +68,17 @@ const MembershipDelete = () => {
         );
 
     if (data) {
-       
-
         return (
             <Layout>
                 <h3>Delete Member</h3>
                 <table>
                     <tr>
                         <td className="Label">First Name:</td>
-
                         <td className="Field">{data.firstName}</td>
                     </tr>
                     <tr>
                         <td style={{ width: "200px" }}>Last Name:</td>
                         <td className="Field">{data.lastName}</td>
-
                     </tr>
                     <tr>
                         <td style={{ width: "200px" }}>Short Name:</td>
@@ -59,28 +90,23 @@ const MembershipDelete = () => {
                     </tr>
                     <tr>
                         <td colSpan={2}>
-
-                            <DeleteButton DeleteItem={deleteItem} />
+                            <DeleteButton DeleteItem={deleteItem} disabled={mutation.isPending} />
                         </td>
                     </tr>
                 </table>
+                {mutation.isError && (
+                    <p className="errorMessage">
+                        {mutation.error instanceof Error
+                            ? mutation.error.message
+                            : "An error occurred while deleting the member."}
+                    </p>
+                )}
                 <p>{errorMsg}</p>
             </Layout>
         );
-
-        async function deleteItem() {
-
-            try {
-                await deleteData(`/api/Memberships/${id}`);
-                navigate("/Membership");
-            }
-            catch (error) {
-                setErrorMsg(`${error}`);
-            }
-        }
     }
 
-    
-}
+    return null;
+};
 
 export default MembershipDelete;

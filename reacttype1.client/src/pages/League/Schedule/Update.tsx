@@ -1,24 +1,63 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import { useState, useEffect } from 'react';
+import { useState, useEffect} from 'react';
 import { useForm, SubmitHandler } from "react-hook-form";
-import { UpdateFormData} from "./UpdateFormData.tsx";
-
+import { UpdateFormData } from "./UpdateFormData.tsx";
 import { Checkbox, TextInput } from "flowbite-react";
-import LeagueClass from '@components/LeagueClass.tsx';;
+import LeagueClass from '@components/LeagueClass.tsx';
 import SubmitButton from '@components/Buttons.tsx';
 import Layout from '@layouts/Layout.tsx';
-import updateData from '@components/UpdateData.tsx';
 import { GetCount } from '@components/CountMatches.tsx';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 
+
+
+
+
+const updateSchedule = async ({ id, data }: { id: number, data: UpdateFormData }) => {
+    const response = await fetch(`/api/Schedules/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return response.json();
+};
 
 const ScheduleUpdate = () => {
     const league = new LeagueClass();
-    const [schedule, setSchedule] = useState<UpdateFormData>();
     const location = useLocation();
     const id: number = location.state;
-    
     const [errorMsg, setErrorMsg] = useState<string>('');
+    const navigate = useNavigate();
+    const queryClient = useQueryClient();
+    const [schedule, setSchedule] = useState<UpdateFormData>();
+    function GetData() {
+
+        const schedules: UpdateFormData[] = JSON.parse(localStorage.getItem("schedule") as string);
+        const results = schedules.find(x => x.id == id);
+        setSchedule(results)
+    }
+
+
+    useEffect(() => {
+        GetData();
+    }, []);
+    
+
+    // Setup mutation for updating the schedule
+    const mutation = useMutation({
+        mutationFn: (data: UpdateFormData) => updateSchedule({ id, data }),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['schedules', league.id] });
+            navigate("/League/Schedule");
+        },
+        onError: (error: unknown) => {
+            setErrorMsg(error instanceof Error ? error.message : String(error));
+        }
+    });
 
     
 
@@ -28,124 +67,6 @@ const ScheduleUpdate = () => {
             return x;
         return '0' + x;
     }
-   
-    const {
-        register,
-        handleSubmit,
-        //formState: { errors },
-
-    } = useForm<UpdateFormData>();
-
-    const onSubmit: SubmitHandler<UpdateFormData> = async (data) => update(data)
-
-    const navigate = useNavigate();
-
-    useEffect(() => {
-        GetData();
-    },[]);
-    
-
-    const contents = schedule === undefined
-        ? <p><em>Loading ...</em></p> :
-
-        <form onSubmit={handleSubmit(onSubmit)} >
-
-
-
-            <input type="hidden" {...register("id", { valueAsNumber: true })} defaultValue={schedule.id} />
-            <input type="hidden" {...register("leagueid", { valueAsNumber: true })} defaultValue={schedule.leagueid} />
-           
-            <table>
-                <tr hidden={GetCount() > 0} >
-                    <td className="Label">Game Date:</td>
-
-                    <td className="Field">
-                        <TextInput type="date" {...register('gameDate', { valueAsDate :false })} defaultValue={today()} />
-                    </td>
-                </tr>
-
-                <tr hidden={GetCount() == 0}>
-                    <td className="Label">Game Date:</td>
-
-                    <td className="Field">
-                        <TextInput  type="date" defaultValue={today()} {...register('gameDate')} disabled/>
-                        
-                    </td>
-                </tr>
-
-                <tr hidden={GetCount() > 0} >
-                    <td className="Label">Playoffs:</td>
-
-                    <td className="Field">
-                        <Checkbox id='playoff' defaultChecked={schedule.playOffs} name='playoff' />
-                    </td>
-                </tr>
-
-                <tr hidden={GetCount() == 0} >
-                    <td className="Label">Playoffs:</td>
-
-                    <td className="Field">
-                        <Checkbox id='playOffs'  {...register('playOffs')} defaultChecked={schedule.playOffs} disabled name='playoff' />
-                    </td>
-                </tr>
-
-                <tr>
-                    <td className="Label">Cancelled:</td>
-
-                    <td className="Field">
-                        <Checkbox id='cancelled' {...register('cancelled')} defaultChecked={schedule.cancelled} />
-                    </td>
-                </tr>
-                <tr>
-                    <td colSpan={2} >
-                        <SubmitButton/>
-                    </td>
-                </tr>
-            </table>
-            
-            <p className="errorMessage">{errorMsg}</p>
-            
-        </form>
-    
-    return (
-        <Layout>
-            <h3>Update schedule for league {league.leagueName}</h3>
-            {contents}
-
-            
-        </Layout>
-    );
-
-
-    function GetData() {
-   
-        const schedules: UpdateFormData[] = JSON.parse(localStorage.getItem("schedule") as string);
-        const results = schedules.find(x => x.id == id);
-        setSchedule(results)
-    }
-
-    async function update(data: UpdateFormData) {
-        if (schedule != undefined && data) {
-            const results: HTMLInputElement = document.getElementById("playoff") as HTMLInputElement;
-             data.playOffs = results.checked;
-           
-            try {
-                await updateData(data, `/api/Schedules/${id}`);
-                navigate("/League/Schedule");
-            }
-            catch (error) {
-                setErrorMsg(`${error}`);
-            }
-        }
-
-    }
-
-    
-    
-
-
-
-    
 
     function today(): string {
         if (schedule === undefined)
@@ -154,10 +75,68 @@ const ScheduleUpdate = () => {
         const date = new Date(schedule.gameDate);
         return `${date.getFullYear()}-${zeroPad(date.getMonth() + 1)}-${zeroPad(date.getDate())}`;
     }
+   
+    // Setup form with default values from fetched schedule
+    const {
+        register,
+        handleSubmit
+    } = useForm<UpdateFormData>({
+        defaultValues: schedule,
+    });
+
+   
+    
 
     
-}
 
+    
 
+    const onSubmit: SubmitHandler<UpdateFormData> = (data) => {
+        mutation.mutate(data);
+        
+    };
+
+    
+    if (schedule) {
+        return (
+            <Layout>
+                <h3>Update schedule for league {league.leagueName}</h3>
+                <form onSubmit={handleSubmit(onSubmit)} >
+                    <input type="hidden" {...register("id", { valueAsNumber: true })} defaultValue={schedule.id} />
+                    <input type="hidden" {...register("leagueid", { valueAsNumber: true })} defaultValue={schedule.leagueid} />
+                    <table>
+                        <tr >
+                            <td className="Label">Game Date:</td>
+                            <td className="Field">
+                                <TextInput type="date" {...register('gameDate', { valueAsDate: false })} defaultValue={today()} disabled={GetCount() > 0} />
+                            </td>
+                        </tr>
+                        
+                       
+                        <tr>
+                            <td className="Label">Playoffs:</td>
+                            <td className="Field">
+                                <Checkbox id='playOffs'  {...register('playOffs')} defaultChecked={schedule.playOffs} disabled={GetCount() > 0 }  />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td className="Label">Cancelled:</td>
+                            <td className="Field">
+                                <Checkbox id='cancelled' {...register('cancelled')} defaultChecked={schedule.cancelled} />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colSpan={2} >
+                                <SubmitButton disabled={mutation.isPending} />
+                            </td>
+                        </tr>
+                    </table>
+                    <p className="errorMessage">{errorMsg}</p>
+                    {mutation.isError && <p className="errorMessage">{(mutation.error as Error).message}</p>}
+                </form>
+            </Layout>
+        );
+    }
+};
 
 export default ScheduleUpdate;

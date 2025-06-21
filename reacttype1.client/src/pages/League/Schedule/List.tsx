@@ -5,9 +5,15 @@ import UserClass from "@components/UserClass";
 import Layout from '@layouts/Layout.tsx';
 import convertDate from '@components/convertDate.tsx';
 import { GetCount } from '@components/CountMatches.tsx';
-import useFetch from '@hooks/useFetch.tsx';
+import { useQuery } from '@tanstack/react-query'; // Add useQuery import
 
-
+const fetchSchedules = async (leagueId: number): Promise<UpdateFormData[]> => {
+    const response = await fetch(`/api/schedules/${leagueId}`);
+    if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return response.json();
+};
 
 function Schedule() {
     const user = new UserClass();
@@ -16,26 +22,26 @@ function Schedule() {
     const updateAllowed: boolean = (permission == "SiteAdmin" || permission == "Admin");
     const allowed: boolean = updateAllowed && GetCount() == 0;
 
-
-    const { data, isLoading, error } = useFetch<UpdateFormData[]>(`/api/schedules/${league.id}`);
+    const { data, isLoading, error } = useQuery<UpdateFormData[]>({
+        queryKey: ['schedules', league.id],
+        queryFn: () => fetchSchedules(league.id),
+        enabled: !!league.id,
+    });
 
     if (isLoading)
         return <p aria-label="Loading">Loading...</p>;
 
     if (error)
-        return <p aria-label="Error">Return Error: {error}</p>;
+        return <p aria-label="Error">Return Error: {(error as Error).message}</p>;
 
     if (data === null || (Array.isArray(data) && data.length === 0))
         return (
-
             <Layout>
                 <h3 aria-label="Membership table">Schedule for League {league.leagueName}</h3>
                 <Link to="/League/Schedule/Create" hidden={!allowed}>Add</Link>
                 <p>No Leagues</p>
             </Layout>
         );
-
-
 
     if (data) {
         localStorage.setItem("schedule", JSON.stringify(data));
@@ -70,15 +76,6 @@ function Schedule() {
             </Layout>
         );
     }
- 
-
-    
-
-    
-
-    
-
-    
 }
 
 export default Schedule;

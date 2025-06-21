@@ -99,7 +99,7 @@ namespace ReactType1.Server.Controllers
 
         // GET: Leagues/Delete/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<ActionResult<League>> Delete(int id)
         {
             var item = await _context.Leagues.FindAsync(id);
             if (item == null)
@@ -111,7 +111,7 @@ namespace ReactType1.Server.Controllers
             try
             {
                 await _context.SaveChangesAsync();
-                return NoContent();
+                return Ok(item);
             }
             catch (DbUpdateException )
             {
