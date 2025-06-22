@@ -3,9 +3,17 @@ import { UpdateFormData } from "./UpdateFormData.tsx";
 import LeagueClass from "@components/LeagueClass";
 import UserClass from "@components/UserClass";
 import Layout from '@layouts/Layout.tsx';
-import convertDate from '@components/convertDate.tsx';
+//import convertDate from '@components/convertDate.tsx';
 import { GetCount } from '@components/CountMatches.tsx';
-import { useQuery } from '@tanstack/react-query'; // Add useQuery import
+import { useQuery } from '@tanstack/react-query';
+import {
+    useReactTable,
+    getCoreRowModel,
+    flexRender,
+    ColumnDef,
+} from '@tanstack/react-table';
+import { useMemo } from 'react';
+import { Spinner } from "flowbite-react";
 
 const fetchSchedules = async (leagueId: number): Promise<UpdateFormData[]> => {
     const response = await fetch(`/api/schedules/${leagueId}`);
@@ -28,13 +36,59 @@ function Schedule() {
         enabled: !!league.id,
     });
 
+    const columns = useMemo<ColumnDef<UpdateFormData, unknown>[]>(() => [
+        {
+            header: 'Game Date',
+            accessorKey: 'gameDate'
+        },
+        {
+            header: 'Cancelled',
+            accessorKey: 'cancelled',
+            cell: info => info.getValue() ? "yes" : "no",
+        },
+        {
+            header: 'Playoffs',
+            accessorKey: 'playOffs',
+            cell: info => info.getValue() ? "yes" : "no",
+        },
+        {
+            header: '',
+            id: 'actions',
+            cell: ({ row }) => (
+                <span hidden={!updateAllowed}>
+                    <Link to={'/league/schedule/Update'} state={row.original.id.toString()} >Update</Link>
+                    <span hidden={!allowed}>|</span>
+                    <Link to="/League/Schedule/Delete" state={row.original.id.toString()} hidden={!allowed}>Delete</Link>
+                </span>
+            ),
+        },
+    ], [allowed, updateAllowed]);
+
+    const table = useReactTable({
+        data: data ?? [],
+        columns,
+        getCoreRowModel: getCoreRowModel(),
+    });
+
     if (isLoading)
-        return <p aria-label="Loading">Loading...</p>;
+        return (
+            <Layout>
+                <h3 aria-label="Membership table">Schedule for League {league.leagueName}</h3>
+                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100px' }}>
+                    <Spinner size="xl" />
+                </div>
+            </Layout>
+        );
 
     if (error)
-        return <p aria-label="Error">Return Error: {(error as Error).message}</p>;
+        return (
+            <Layout>
+                <h3 aria-label="Membership table">Schedule for League {league.leagueName}</h3>
+                <p className="errorMessage">{(error as Error).message}</p>
+            </Layout>
+        );
 
-    if (data === null || (Array.isArray(data) && data.length === 0))
+    if (!data || data.length === 0)
         return (
             <Layout>
                 <h3 aria-label="Membership table">Schedule for League {league.leagueName}</h3>
@@ -43,39 +97,38 @@ function Schedule() {
             </Layout>
         );
 
-    if (data) {
-        localStorage.setItem("schedule", JSON.stringify(data));
-        return (
-            <Layout>
-                <h3 id="tableLabel">Schedule for League {league.leagueName}</h3>
-                <Link to="/League/Schedule/Create" hidden={!allowed}>Add</Link>
-                <table className="table table-striped" aria-labelledby="tableLabel">
-                    <thead>
-                        <tr>
-                            <th>Game Date</th>
-                            <th>Cancelled</th>
-                            <th>Playoffs</th>
-                            <td hidden={updateAllowed}></td>
+    localStorage.setItem("schedule", JSON.stringify(data));
+
+    return (
+        <Layout>
+            <h3 id="tableLabel">Schedule for League {league.leagueName}</h3>
+            <Link to="/League/Schedule/Create" hidden={!allowed}>Add</Link>
+            <table className="table table-striped" aria-labelledby="tableLabel">
+                <thead>
+                    {table.getHeaderGroups().map(headerGroup => (
+                        <tr key={headerGroup.id}>
+                            {headerGroup.headers.map(header => (
+                                <th key={header.id}>
+                                    {flexRender(header.column.columnDef.header, header.getContext())}
+                                </th>
+                            ))}
                         </tr>
-                    </thead>
-                    <tbody>
-                        {data.map(item =>
-                            <tr key={item.id}>
-                                <td>{convertDate(item.gameDate)}</td>
-                                <td>{item.cancelled ? "yes" : "no"}</td>
-                                <td>{item.playOffs ? "yes" : "no"}</td>
-                                <td hidden={!updateAllowed}>
-                                    <Link to={'/league/schedule/Update'} state={item.id.toString()} >Update</Link><span hidden={!allowed}>|</span>
-                                    <Link to="/League/Schedule/Delete" state={item.id.toString()} hidden={!allowed}>Delete</Link></td>
-                            </tr>
-                        )}
-
-                    </tbody>
-                </table>
-
-            </Layout>
-        );
-    }
+                    ))}
+                </thead>
+                <tbody>
+                    {table.getRowModel().rows.map(row => (
+                        <tr key={row.id}>
+                            {row.getVisibleCells().map(cell => (
+                                <td key={cell.id}>
+                                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                </td>
+                            ))}
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        </Layout>
+    );
 }
 
 export default Schedule;

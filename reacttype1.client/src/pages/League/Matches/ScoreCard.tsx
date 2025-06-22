@@ -1,8 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
-import LeagueClass from "@components/LeagueClass.tsx";
 import { Spinner } from "flowbite-react";
+import { useLocation } from "react-router-dom";
 
-const fetchPDF = async (id: number): Promise<string> => {
+
+const fetchPDF = async (id: string): Promise<string> => {
     const response = await fetch(`/api/Matches/ScoreCard/${id}`);
     if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -11,12 +12,13 @@ const fetchPDF = async (id: number): Promise<string> => {
 };
 
 function ScoreCard() {
-    const league = new LeagueClass();
+    const location = useLocation();
+    const id: string = location.search.substring(4);
 
     const { data, isLoading, isError, error } = useQuery<string>({
-        queryKey: ['ScheduleReport-pdf', league.id],
-        queryFn: () => fetchPDF(league.id),
-        enabled: !!league.id
+        queryKey: ['ScheduleReport-pdf', id],
+        queryFn: () => fetchPDF(id),
+        enabled: !!id
     },
     );
 
