@@ -1,21 +1,14 @@
 import { useQuery } from '@tanstack/react-query';
 import LeagueClass from "@components/LeagueClass.tsx";
 import { Spinner } from "flowbite-react";
-
-const fetchPDF = async (id: number): Promise<string> => {
-    const response = await fetch(`/api/Matches/ScheduleReport/${id}`);
-    if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    return response.text();
-};
+import fetchText from '@components/fetchText.tsx';
 
 function ScheduleReport() {
     const league = new LeagueClass();
 
     const { data, isLoading, isError, error } = useQuery<string>({
         queryKey: ['ScheduleReport-pdf', league.id],
-        queryFn: () => fetchPDF(league.id),
+        queryFn: () => fetchText(`/api/Matches/ScheduleReport/${league.id}`),
         enabled: !!league.id
     },
     );

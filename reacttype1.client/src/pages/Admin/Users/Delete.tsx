@@ -4,14 +4,8 @@ import { DetailsType } from "./DetailsType.tsx";
 import Layout from "@layouts/Layout.tsx";
 import { DeleteButton } from '@components/Buttons.tsx';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-
-const fetchUser = async (id: number): Promise<DetailsType> => {
-    const response = await fetch(`/api/user/${id}`);
-    if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    return response.json();
-};
+import { Spinner } from "flowbite-react";
+import fetchData from '@components/fetchData.tsx';
 
 const UsersDelete = () => {
     const location = useLocation();
@@ -47,10 +41,10 @@ const UsersDelete = () => {
         mutation.mutate();
     }
 
-    // useQuery for fetching league data
+    // useQuery for fetching user data
     const { data, isLoading, error } = useQuery<DetailsType>({
         queryKey: ['user', id],
-        queryFn: () => fetchUser(id),
+        queryFn: () => fetchData<DetailsType>(`/api/user/${id}`),
         enabled: !!id,
     });
 
@@ -62,13 +56,13 @@ const UsersDelete = () => {
             </Layout>
         );
 
-    
-
     if (isLoading)
         return (
             <Layout>
                 <h3>Delete Member</h3>
-                <p>Loading...</p>
+                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '200px' }}>
+                    <Spinner size="xl" />
+                </div>
             </Layout>
         );
 

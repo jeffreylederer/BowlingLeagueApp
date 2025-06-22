@@ -7,6 +7,7 @@ import Layout from "@layouts/Layout.tsx";
 import SubmitButton from '@components/Buttons.tsx';
 import { useState } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
+import { Spinner } from "flowbite-react";
 
 const ChangePassword = () => {
     const location = useLocation();
@@ -74,7 +75,9 @@ const ChangePassword = () => {
         return (
             <Layout>
                 <h3>Update membership record</h3>
-                <p>Loading...</p>
+                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '200px' }}>
+                    <Spinner size="xl" />
+                </div>
             </Layout>
         );
 

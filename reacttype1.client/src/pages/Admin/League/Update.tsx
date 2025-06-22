@@ -2,19 +2,11 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { UpdateFormData, UpdateFormDataSchema } from "./UpdateFormData.tsx";
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Checkbox, TextInput } from "flowbite-react";
-import { Button } from "flowbite-react";
+import { Checkbox, TextInput, Button, Spinner } from "flowbite-react";
 import Layout from "@layouts/Layout.tsx";
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
-
-const fetchLeague = async (id: number): Promise<UpdateFormData> => {
-    const response = await fetch(`/api/leagues/${id}`);
-    if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    return response.json();
-};
+import fetchData from '@components/fetchData.tsx';
 
 const updateLeague = async ({ id, data }: { id: number, data: UpdateFormData }) => {
     const response = await fetch(`/api/leagues/${id}`, {
@@ -49,7 +41,7 @@ const LeagueUpdate = () => {
 
     const { data, isLoading, error } = useQuery<UpdateFormData>({
         queryKey: ['league', id],
-        queryFn: () => fetchLeague(id),
+        queryFn: () => fetchData<UpdateFormData>(`/api/leagues/${id}`),
         enabled: !!id,
     });
 
@@ -81,7 +73,9 @@ const LeagueUpdate = () => {
         return (
             <Layout>
                 <h3>Update membership record</h3>
-                <p>Loading...</p>
+                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '200px' }}>
+                    <Spinner size="xl" />
+                </div>
             </Layout>
         );
 

@@ -10,22 +10,8 @@ import SubmitButton from '@components/Buttons.tsx';
 import { TeamType } from './TeamType.ts';
 import { GetCount } from '@components/CountMatches.tsx';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-
-const fetchTeam = async (id: string): Promise<TeamType> => {
-    const response = await fetch(`/api/Teams/getOne/${id}`);
-    if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    return response.json();
-};
-
-const fetchMembers = async (id: string): Promise<Membership[]> => {
-    const response = await fetch(`/api/Teams/NotOnTeam/${id}`);
-    if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    return response.json();
-};
+import { Spinner } from "flowbite-react";
+import fetchData from '@components/fetchData.tsx';
 
 const updateTeam = async ({ id, data }: { id: string, data: UpdateFormData }) => {
     const response = await fetch(`/api/Teams/${id}`, {
@@ -42,24 +28,22 @@ const updateTeam = async ({ id, data }: { id: string, data: UpdateFormData }) =>
 const TeamUpdate = () => {
     const league = new LeagueClass();
     const [errorMsg, setErrorMsg] = useState("");
-     const location = useLocation();
+    const location = useLocation();
     const id: string = location.state;
     const navigate = useNavigate();
     const queryClient = useQueryClient();
 
     const { data, isLoading, error } = useQuery<TeamType>({
         queryKey: ['team', id],
-        queryFn: () => fetchTeam(id),
+        queryFn: () => fetchData<TeamType>(`/api/Teams/getOne/${id}`),
         enabled: !!id,
     });
 
     const { data: membership, isLoading: membershipIsLoading, error: membershipError } = useQuery<Membership[]>({
         queryKey: ['teammembership', league.id],
-        queryFn: () => fetchMembers(league.id.toString()),
+        queryFn: () => fetchData<Membership[]>(`/api/Teams/NotOnTeam/${league.id}`),
         enabled: !!id
     });
-
-
 
     const mutation = useMutation({
         mutationFn: (formData: UpdateFormData) => updateTeam({ id, data: formData }),
@@ -125,8 +109,6 @@ const TeamUpdate = () => {
         mutation.mutate(formData);
     };
 
-   
-
     if (error)
         return <p>{(error as Error).message}</p>;
 
@@ -134,9 +116,16 @@ const TeamUpdate = () => {
         return <p>{(membershipError as Error).message}</p>;
 
     if (isLoading || membershipIsLoading)
-        return <p>Loading...</p>;
-    if (data != undefined && membership != undefined) {
+        return (
+            <Layout>
+                <h3>Update Team</h3>
+                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '200px' }}>
+                    <Spinner size="xl" />
+                </div>
+            </Layout>
+        );
 
+    if (data != undefined && membership != undefined) {
         return (
             <Layout>
                 <h3>Update Team {data.teamNo} for league {league.leagueName}</h3>

@@ -2,27 +2,19 @@ import { useLocation, Link } from "react-router-dom";
 import { FormData } from "./FormData.tsx";
 import { useNavigate } from "react-router-dom";
 import Layout from "@layouts/Layout.tsx";
-import { Button } from "flowbite-react";
-import { useQuery } from '@tanstack/react-query'; // Add useQuery import
-
-// Fetch function for league details
-const fetchLeague = async (id: number): Promise<FormData> => {
-    const response = await fetch(`/api/leagues/${id}`);
-    if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    return response.json();
-};
+import { Button, Spinner } from "flowbite-react";
+import { useQuery } from '@tanstack/react-query';
+import fetchData from '@components/fetchData.tsx';
 
 const LeagueDetails = () => {
     const location = useLocation();
     const id: number = location.state;
     const navigate = useNavigate();
 
-    // Replace useFetch with useQuery
+    // useQuery with fetchData
     const { data, isLoading, error } = useQuery<FormData>({
         queryKey: ['league', id],
-        queryFn: () => fetchLeague(id),
+        queryFn: () => fetchData<FormData>(`/api/leagues/${id}`),
         enabled: !!id,
     });
 
@@ -33,7 +25,11 @@ const LeagueDetails = () => {
 
     if (isLoading)
         return (
-            <p>Loading...</p>
+            <Layout>
+                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '200px' }}>
+                    <Spinner size="xl" />
+                </div>
+            </Layout>
         );
 
     if (data) {

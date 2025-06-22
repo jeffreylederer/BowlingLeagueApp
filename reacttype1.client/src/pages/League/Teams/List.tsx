@@ -6,23 +6,12 @@ import UserClass from "@components/UserClass";
 import { Link } from 'react-router-dom';
 import Layout from '@layouts/Layout.tsx';
 import { Spinner } from "flowbite-react";
-import {
-    useReactTable,
-    getCoreRowModel,
-    flexRender,
-    ColumnDef,
-    HeaderGroup,
-    Row
-} from '@tanstack/react-table';
-import { useMemo } from 'react';
+import { ColumnDef } from '@tanstack/react-table';
+import fetchData from '@components/fetchData.tsx'; // Assuming you have a fetchData utility function
 
-const fetchTeam = async (id: number): Promise<TeamType[] | undefined> => {
-    const response = await fetch(`/api/teams/${id}`);
-    if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    return response.json();
-};
+import { useMemo } from 'react';
+import DisplayTable from '@components/DisplayTable.tsx'; // Assuming you have a DisplayTable component
+
 
 const Team = () => {
     const league = new LeagueClass();
@@ -33,7 +22,7 @@ const Team = () => {
 
     const { data, isLoading, error } = useQuery<TeamType[] | undefined>({
         queryKey: ['teamlist', league.id],
-        queryFn: () => fetchTeam(league.id),
+        queryFn: () => fetchData(`/api/teams/${league.id}`),
         enabled: !!league.id,
     });
 
@@ -76,11 +65,7 @@ const Team = () => {
         },
     ], [deleteAllowed, updateAllowed, league.teamSize]);
 
-    const table = useReactTable({
-        data: data ?? [],
-        columns,
-        getCoreRowModel: getCoreRowModel(),
-    });
+    
 
     if (isLoading)
         return (
@@ -112,43 +97,14 @@ const Team = () => {
         );
     }
 
-    // Filter out hidden columns for rendering
-    const visibleHeaders = (headerGroup: HeaderGroup<TeamType>) =>
-        headerGroup.headers.filter(header => !header.column.columnDef.meta?.hidden);
-
-
-    const visibleCells = (row: Row<TeamType>) =>
-        row.getVisibleCells().filter(cell => !cell.column.columnDef.meta?.hidden);
+   
 
     return (
         <Layout>
             <h3 id="tableLabel">Teams for League {league.leagueName}</h3>
             <Link to="/league/Teams/Create" hidden={!deleteAllowed}>Add</Link><br />
             <Link to="/league/Teams/Report" target="blank">Teams Report</Link>
-            <table className="table table-striped" aria-labelledby="tableLabel">
-                <thead>
-                    {table.getHeaderGroups().map(headerGroup  => (
-                        <tr key={headerGroup.id}>
-                            {visibleHeaders(headerGroup).map(header => (
-                                <th key={header.id}>
-                                    {flexRender(header.column.columnDef.header, header.getContext())}
-                                </th>
-                            ))}
-                        </tr>
-                    ))}
-                </thead>
-                <tbody>
-                    {table.getRowModel().rows.map(row => (
-                        <tr key={row.id}>
-                            {visibleCells(row).map(cell => (
-                                <td key={cell.id}>
-                                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                                </td>
-                            ))}
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
+            <DisplayTable<TeamType> data={data} columns={columns } />
         </Layout>
     );
 };

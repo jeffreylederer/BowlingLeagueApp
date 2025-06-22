@@ -1,17 +1,11 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useState } from 'react';
 import { FormData } from "./FormData.tsx";
-import {DeleteButton} from '@components/Buttons.tsx';
+import { DeleteButton } from '@components/Buttons.tsx';
 import Layout from "@layouts/Layout.tsx";
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-
-const fetchLeague = async (id: number): Promise<FormData> => {
-    const response = await fetch(`/api/leagues/${id}`);
-    if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    return response.json();
-};
+import { Spinner } from "flowbite-react";
+import fetchData from '@components/fetchData.tsx';
 
 const deleteLeague = async (id: number) => {
     const response = await fetch(`/api/leagues/${id}`, {
@@ -33,7 +27,7 @@ const LeagueDelete = () => {
     // useQuery for fetching league data
     const { data, isLoading, error } = useQuery<FormData>({
         queryKey: ['league', id],
-        queryFn: () => fetchLeague(id),
+        queryFn: () => fetchData<FormData>(`/api/leagues/${id}`),
         enabled: !!id,
     });
 
@@ -65,7 +59,9 @@ const LeagueDelete = () => {
         return (
             <Layout>
                 <h3>Update membership record</h3>
-                <p>Loading...</p>
+                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '200px' }}>
+                    <Spinner size="xl" />
+                </div>
             </Layout>
         );
 

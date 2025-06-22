@@ -8,14 +8,8 @@ import LeagueClass from '@components/LeagueClass.tsx';
 import SubmitButton from '@components/Buttons.tsx';
 import Layout from '@layouts/Layout.tsx';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-
-const fetchMembers = async (leagueId: number): Promise<UpdateFormData[]> => {
-    const response = await fetch(`/api/players/getMembers/${leagueId}`);
-    if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    return response.json();
-};
+import { Spinner } from "flowbite-react";
+import fetchData from '@components/fetchData.tsx';
 
 const createPlayer = async (data: PlayerFormData) => {
     const response = await fetch(`/api/players`, {
@@ -44,7 +38,7 @@ const PlayersCreate = () => {
 
     const { data, isLoading, error } = useQuery<UpdateFormData[]>({
         queryKey: ['members', league.id],
-        queryFn: () => fetchMembers(league.id),
+        queryFn: () => fetchData<UpdateFormData[]>(`/api/players/getMembers/${league.id}`),
         enabled: !!league.id,
     });
 
@@ -75,7 +69,9 @@ const PlayersCreate = () => {
     if (isLoading)
         return (
             <Layout>
-                <p>Loading...</p>
+                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '200px' }}>
+                    <Spinner size="xl" />
+                </div>
             </Layout>
         );
 

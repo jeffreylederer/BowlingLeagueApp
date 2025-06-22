@@ -1,22 +1,11 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-// Remove deleteData import if present
 import LeagueClass from '@components/LeagueClass.tsx';
-// Import your TeamType as appropriate
 import { TeamType } from "./TeamType.ts";
-import { DeleteButton } from '@components/Buttons.tsx'; // Adjust the import path as necessary
-
-
-const fetchTeam = async (id: number): Promise<TeamType | undefined> => {
-    // Optionally, try to get from localStorage first if you store teams there
-    // Otherwise, always fetch from API
-    const response = await fetch(`/api/Teams/getOne/${id}`);
-    if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    return response.json();
-};
+import { DeleteButton } from '@components/Buttons.tsx';
+import { Spinner } from "flowbite-react";
+import fetchData from '@components/fetchData.tsx';
 
 const deleteTeam = async (id: number) => {
     const response = await fetch(`/api/teams/${id}`, {
@@ -27,6 +16,7 @@ const deleteTeam = async (id: number) => {
     }
     return response.json();
 };
+
 
 const TeamDelete = () => {
     const location = useLocation();
@@ -53,11 +43,9 @@ const TeamDelete = () => {
     // Fetch the team data
     const { data: team, isLoading, error } = useQuery<TeamType | undefined>({
         queryKey: ['team', id],
-        queryFn: () => fetchTeam(id),
+        queryFn: () => fetchData<TeamType>(`/api/Teams/getOne/${id}`),
         enabled: !!id,
     });
-
-   
 
     function deleteItem() {
         mutation.mutate();
@@ -75,7 +63,9 @@ const TeamDelete = () => {
         return (
             <div>
                 <h3>Delete Team</h3>
-                <p>Loading...</p>
+                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '200px' }}>
+                    <Spinner size="xl" />
+                </div>
             </div>
         );
 
@@ -87,32 +77,27 @@ const TeamDelete = () => {
                     <tbody>
                         <tr>
                             <td className="Label">Team No:</td>
-                            <td className="Field">{team?.teamNo}</td>
+                            <td className="Field">{team.teamNo}</td>
                         </tr>
-
                         <tr>
                             <td style={{ width: "200px" }}>Skip:</td>
-                            <td className="Field">{team?.skip}</td>
+                            <td className="Field">{team.skip}</td>
                         </tr>
-
                         <tr hidden={league.teamSize < 3}>
                             <td style={{ width: "200px" }}>Vice Skip:</td>
-                            <td className="Field">{team?.viceSkip}</td>
+                            <td className="Field">{team.viceSkip}</td>
                         </tr>
-
                         <tr hidden={league.teamSize < 2}>
                             <td style={{ width: "200px" }}>Lead:</td>
-                            <td className="Field">{team?.lead}</td>
+                            <td className="Field">{team.lead}</td>
                         </tr>
-
                         <tr>
                             <td style={{ width: "200px" }}>Division:</td>
-                            <td className="Field">{team?.division}</td>
+                            <td className="Field">{team.division}</td>
                         </tr>
                         <tr>
                             <td colSpan={2} style={{ textAlign: "center" }}>
                                 <DeleteButton DeleteItem={deleteItem} disabled={mutation.isPending} />
-                                <button onClick={deleteItem} disabled={mutation.isPending}>Delete</button>
                             </td>
                         </tr>
                     </tbody>
@@ -123,7 +108,7 @@ const TeamDelete = () => {
         );
     }
 
-
+    return null;
 };
 
 export default TeamDelete;

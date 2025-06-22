@@ -1,14 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 import { useLocation } from "react-router-dom";
 import { Spinner } from "flowbite-react";
+import fetchText from '@components/fetchText.tsx';
 
-const fetchPDF = async (id: string): Promise<string> => {
-    const response = await fetch(`/api/Matches/Standings/${id}`);
-    if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    return response.text();
-};
 
 function Standings() {
     const location = useLocation();
@@ -17,7 +11,7 @@ function Standings() {
 
     const { data, isLoading, isError, error } = useQuery<string>({
         queryKey: ['standings-pdf', id],
-        queryFn: () => fetchPDF(id),
+        queryFn: () => fetchText(`/api/Matches/Standings/${id}`),
         enabled: !!id
         },
     );

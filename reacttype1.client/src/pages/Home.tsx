@@ -6,9 +6,16 @@ import Layout from "@layouts/Layout.tsx";
 import { SetCount } from '@components/CountMatches.tsx';
 import { useQuery } from '@tanstack/react-query';
 import { Spinner } from "flowbite-react";
+import fetchData from '@components/fetchData.tsx'; // Adjust the import path as necessary
+import DisplayTable from '@components/DisplayTable';
+import { ColumnDef } from '@tanstack/react-table';
+import { useMemo } from 'react';
 
 function Home() {
     const navigate = useNavigate();
+
+    
+
 
     // User/session check and cleanup
     useEffect(() => {
@@ -23,17 +30,52 @@ function Home() {
     // Fetch leagues with TanStack Query
     const { data, isLoading, isError, error } = useQuery<LeagueType[]>({
         queryKey: ['leagues'],
-        queryFn: async () => {
-            
-            const response = await fetch('/api/leagues');
-            if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(errorText || `HTTP error! status: ${response.status}`);
-            }
-            return response.json();
-        },
+        queryFn: () => fetchData<LeagueType[]>('/api/leagues'),
+
         retry: 3, // Retry up to 3 times on failure
     });
+
+    
+    const columns = useMemo<ColumnDef<LeagueType, unknown>[]>(() => [
+        {
+            header: 'League Name',
+            accessorKey: 'leagueName'
+        },
+        {
+            header: 'Team Size',
+            accessorKey: 'teamSize'
+        },
+        {
+            header: 'Divisions',
+            accessorKey: 'divisions'
+        },
+        {
+            header: 'Playoffs',
+            accessorKey: 'playOffs',
+            cell: info => info.getValue() ? "yes" : "no",
+        },
+        {
+            header: '',
+            id: 'actions',
+            cell: ({ row }) => (
+                <button onClick={() => {
+                    if (data === undefined || data.length === 0) {
+                        return;
+                    }
+                    const record = data.find((item) => item.id === row.original.id);
+                    if (record != undefined) {
+                        const league = new LeagueClass();
+                        league.Initialize(record);
+                    }
+                    navigate("/Welcome");
+                }}>Select</button>
+
+
+            ),
+        }
+    ], [navigate, data]);
+       
+  
 
     if (isLoading) {
         return (
@@ -72,36 +114,7 @@ function Home() {
         return (
             <Layout>
                 <h3 id="tableLabel">Select League</h3>
-                <table className="table table-striped" aria-labelledby="tableLabel">
-                    <thead>
-                        <tr>
-                            <th>League Name</th>
-                            <th>Team Size</th>
-                            <th>Divisions</th>
-                            <th>Playoffs</th>
-                            <td></td>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {leagues.map(data =>
-                            <tr key={data.id.toString()}>
-                                <td>{data.leagueName}</td>
-                                <td>{data.teamSize}</td>
-                                <td>{data.divisions}</td>
-                                <td>{data.playOffs ? "Yes" : "No"}</td>
-                                <td>
-                                    <button onClick={() => {
-                                        const league = new LeagueClass();
-                                        league.Initialize(data);
-                                        navigate("/Welcome");
-                                    }}>
-                                        select
-                                    </button>
-                                </td>
-                            </tr>
-                        )}
-                    </tbody>
-                </table>
+                <DisplayTable<LeagueType> data={leagues} columns={columns} />
             </Layout>
         );
     }

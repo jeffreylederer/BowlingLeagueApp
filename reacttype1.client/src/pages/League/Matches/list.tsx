@@ -9,22 +9,9 @@ import LeagueClass from "@components/LeagueClass";
 import UserClass from '@components/UserClass.tsx';
 import { useQuery } from '@tanstack/react-query';
 import { Spinner } from "flowbite-react";
+import fetchData from '@components/fetchData.tsx';
 
-const fetchMatches = async (id: number): Promise<MatchFormData[]> => {
-    const response = await fetch(`/api/Matches/${id}`);
-    if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    return response.json();
-};
 
-const fetchSchedule = async (id: number): Promise<UpdateFormData[]> => {
-    const response = await fetch(`/api/Schedules/${id}`);
-    if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    return response.json();
-};
 
 function Matches() {
     const user = new UserClass();
@@ -42,13 +29,13 @@ function Matches() {
     // Fetch schedule (weeks)
     const { data, isLoading, isError, error } = useQuery<UpdateFormData[]>({
         queryKey: ['schedules', league.id],
-        queryFn: () => fetchSchedule(league.id),
+        queryFn: () => fetchData<UpdateFormData[]>(`/api/Schedules/${league.id}`)
     });
 
     // Fetch matches for selected week
     const { data: match, isLoading: isLoadingMatch, isError: isErrorMatch, error: errorMatch, refetch } = useQuery<MatchFormData[]>({
         queryKey: ['matches', weekid],
-        queryFn: () => fetchMatches(weekid),
+        queryFn: () => fetchData<MatchFormData[]>(`/api/Matches/${weekid}`),
         enabled: !!weekid, // Only run if weekid is truthy
     });
 

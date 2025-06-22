@@ -5,14 +5,8 @@ import UpdateFormData from './UpdateFormData.tsx';
 import { useState } from 'react';
 import { DeleteButton } from '@components/Buttons.tsx';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-
-const fetchPlayer = async (id: number): Promise<UpdateFormData> => {
-    const response = await fetch(`/api/players/GetOne/${id}`);
-    if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    return response.json();
-};
+import { Spinner } from "flowbite-react";
+import fetchData from '@components/fetchData.tsx';
 
 const deletePlayer = async (id: number) => {
     const response = await fetch(`/api/players/${id}`, {
@@ -35,7 +29,7 @@ const PlayersDelete = () => {
     // useQuery for fetching player data
     const { data, isLoading, error } = useQuery<UpdateFormData>({
         queryKey: ['player', id],
-        queryFn: () => fetchPlayer(id),
+        queryFn: () => fetchData<UpdateFormData>(`/api/players/GetOne/${id}`),
         enabled: !!id,
     });
 
@@ -68,7 +62,9 @@ const PlayersDelete = () => {
         return (
             <Layout>
                 <h3>Delete Member</h3>
-                <p>Loading...</p>
+                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '200px' }}>
+                    <Spinner size="xl" />
+                </div>
             </Layout>
         );
 

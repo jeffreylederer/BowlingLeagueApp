@@ -3,25 +3,13 @@ import { UpdateFormData } from "./UpdateFormData.tsx";
 import LeagueClass from "@components/LeagueClass";
 import UserClass from "@components/UserClass";
 import Layout from '@layouts/Layout.tsx';
-//import convertDate from '@components/convertDate.tsx';
 import { GetCount } from '@components/CountMatches.tsx';
 import { useQuery } from '@tanstack/react-query';
-import {
-    useReactTable,
-    getCoreRowModel,
-    flexRender,
-    ColumnDef,
-} from '@tanstack/react-table';
 import { useMemo } from 'react';
 import { Spinner } from "flowbite-react";
-
-const fetchSchedules = async (leagueId: number): Promise<UpdateFormData[]> => {
-    const response = await fetch(`/api/schedules/${leagueId}`);
-    if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    return response.json();
-};
+import DisplayTable from '@components/DisplayTable';
+import { ColumnDef } from '@tanstack/react-table';
+import fetchData from '@components/fetchData';
 
 function Schedule() {
     const user = new UserClass();
@@ -32,7 +20,7 @@ function Schedule() {
 
     const { data, isLoading, error } = useQuery<UpdateFormData[]>({
         queryKey: ['schedules', league.id],
-        queryFn: () => fetchSchedules(league.id),
+        queryFn: ()=> fetchData<UpdateFormData[]>(`/api/schedules/${league.id}`),
         enabled: !!league.id,
     });
 
@@ -63,12 +51,6 @@ function Schedule() {
             ),
         },
     ], [allowed, updateAllowed]);
-
-    const table = useReactTable({
-        data: data ?? [],
-        columns,
-        getCoreRowModel: getCoreRowModel(),
-    });
 
     if (isLoading)
         return (
@@ -103,30 +85,7 @@ function Schedule() {
         <Layout>
             <h3 id="tableLabel">Schedule for League {league.leagueName}</h3>
             <Link to="/League/Schedule/Create" hidden={!allowed}>Add</Link>
-            <table className="table table-striped" aria-labelledby="tableLabel">
-                <thead>
-                    {table.getHeaderGroups().map(headerGroup => (
-                        <tr key={headerGroup.id}>
-                            {headerGroup.headers.map(header => (
-                                <th key={header.id}>
-                                    {flexRender(header.column.columnDef.header, header.getContext())}
-                                </th>
-                            ))}
-                        </tr>
-                    ))}
-                </thead>
-                <tbody>
-                    {table.getRowModel().rows.map(row => (
-                        <tr key={row.id}>
-                            {row.getVisibleCells().map(cell => (
-                                <td key={cell.id}>
-                                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                                </td>
-                            ))}
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
+            <DisplayTable<UpdateFormData> data={data} columns={columns} />
         </Layout>
     );
 }

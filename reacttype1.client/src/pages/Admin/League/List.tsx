@@ -2,27 +2,16 @@ import { Link } from 'react-router-dom';
 import { UpdateFormData } from "./UpdateFormData.tsx";
 import Layout from "@layouts/Layout.tsx";
 import { useQuery } from '@tanstack/react-query';
-import {
-    useReactTable,
-    getCoreRowModel,
-    flexRender,
-    ColumnDef,
-} from '@tanstack/react-table';
+import DisplayTable from '@components/DisplayTable';
+import { ColumnDef } from '@tanstack/react-table';
+import fetchData from '@components/fetchData.tsx';
 import { useMemo } from 'react';
-
-// Fetch function for leagues
-const fetchLeagues = async (): Promise<UpdateFormData[]> => {
-    const response = await fetch('/api/leagues');
-    if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    return response.json();
-};
+import { Spinner } from "flowbite-react";
 
 function League() {
     const { data, isLoading, error } = useQuery<UpdateFormData[]>({
         queryKey: ['leagueslist'],
-        queryFn: fetchLeagues,
+        queryFn: () => fetchData<UpdateFormData[]>('/api/leagues'),    
         staleTime: 1000 * 60,
     });
 
@@ -62,14 +51,14 @@ function League() {
         },
     ], []);
 
-    const table = useReactTable({
-        data: data ?? [],
-        columns,
-        getCoreRowModel: getCoreRowModel(),
-    });
-
     if (isLoading)
-        return <p aria-label="Loading">Loading...</p>;
+        return (
+            <Layout>
+                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '200px' }}>
+                    <Spinner size="xl" />
+                </div>
+            </Layout>
+        );
 
     if (error)
         return <p aria-label="Error">Return Error: {(error as Error).message}</p>;
@@ -87,30 +76,7 @@ function League() {
         <Layout>
             <h3 id="tableLabel">Leagues</h3>
             <Link to="/Admin/League/Create">Add</Link>
-            <table className="table table-striped" aria-labelledby="tableLabel">
-                <thead>
-                    {table.getHeaderGroups().map(headerGroup => (
-                        <tr key={headerGroup.id}>
-                            {headerGroup.headers.map(header => (
-                                <th key={header.id}>
-                                    {flexRender(header.column.columnDef.header, header.getContext())}
-                                </th>
-                            ))}
-                        </tr>
-                    ))}
-                </thead>
-                <tbody>
-                    {table.getRowModel().rows.map(row => (
-                        <tr key={row.id}>
-                            {row.getVisibleCells().map(cell => (
-                                <td key={cell.id}>
-                                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                                </td>
-                            ))}
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
+            <DisplayTable<UpdateFormData> data={data} columns={columns} />
         </Layout>
     );
 }

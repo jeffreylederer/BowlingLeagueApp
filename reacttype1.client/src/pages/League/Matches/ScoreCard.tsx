@@ -1,15 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
 import { Spinner } from "flowbite-react";
 import { useLocation } from "react-router-dom";
+import fetchText from '@components/fetchText.tsx';
 
 
-const fetchPDF = async (id: string): Promise<string> => {
-    const response = await fetch(`/api/Matches/ScoreCard/${id}`);
-    if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    return response.text();
-};
+
 
 function ScoreCard() {
     const location = useLocation();
@@ -17,7 +12,7 @@ function ScoreCard() {
 
     const { data, isLoading, isError, error } = useQuery<string>({
         queryKey: ['ScheduleReport-pdf', id],
-        queryFn: () => fetchPDF(id),
+        queryFn: () => fetchText(`/api/Matches/ScoreCard/${id}`),
         enabled: !!id
     },
     );
