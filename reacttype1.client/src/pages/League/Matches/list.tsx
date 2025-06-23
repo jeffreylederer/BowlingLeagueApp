@@ -10,6 +10,7 @@ import UserClass from '@components/UserClass.tsx';
 import { useQuery } from '@tanstack/react-query';
 import { Spinner } from "flowbite-react";
 import fetchData from '@components/fetchData.tsx';
+import { GetCount } from '@components/CountMatches.tsx';
 
 
 
@@ -24,7 +25,7 @@ function Matches() {
     const [weekid, setWeekid] = useState(+id);
     const standingUrl: string = "/League/Matches/Standings?id=".concat(weekid.toString());
     const scoreUrl: string = "/league/matches/ScoreCard?id=".concat(weekid.toString());
-    const [errorMsg, setErrorMsg] = useState('Matches created');
+    const [errorMsg, setErrorMsg] = useState('');
 
     // Fetch schedule (weeks)
     const { data, isLoading, isError, error } = useQuery<UpdateFormData[]>({
@@ -91,6 +92,15 @@ function Matches() {
         );
     }
 
+    if (GetCount() == 0) {
+        return (
+            <Layout>
+                <h3>Games in {league.leagueName} league</h3>
+                <p>No matches created yet</p>
+            </Layout>
+        );
+    }
+
     return (
         <Layout>
             <h3>Games in {league.leagueName} league</h3>
@@ -105,6 +115,7 @@ function Matches() {
                     <a href={scoreUrl} target='blank' hidden={weekid == 0}>This week's score card</a>
                 </p>
             </div>
+            <div hidden={match == undefined}>
             <table className="table table-striped" aria-labelledby="tableLabel">
                 <thead>
                     <tr>
@@ -154,6 +165,10 @@ function Matches() {
                 </tbody>
             </table>
             <p style={{ color: 'red', textAlign: 'left' }} hidden={weekid == 0}>Teams with wheel chair members are in red</p>
+            </div>
+            <div hidden={match != undefined}>
+            <p>Select a game date</p>
+            </div>
             <p style={{ textAlign: "center" }}>{errorMsg}</p>
         </Layout>
     );
