@@ -5,8 +5,9 @@ import UserClass from "@components/UserClass.tsx";
 import { useQuery } from '@tanstack/react-query';
 import DisplayTable from '@components/DisplayTable';
 import { ColumnDef } from '@tanstack/react-table';
-import fetchData from '@components/fetchData.tsx'; // Assuming you have a fetch function 
+import fetchData from '@components/fetchData.tsx';
 import { useMemo } from 'react';
+import { Spinner } from "flowbite-react";
 
 function Users() {
     const user = new UserClass();
@@ -54,7 +55,9 @@ function Users() {
     if (isLoading)
         return (
             <Layout>
-                <p aria-label="Loading">Loading...</p>
+                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '200px' }}>
+                    <Spinner size="xl" />
+                </div>
             </Layout>
         );
 

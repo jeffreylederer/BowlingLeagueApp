@@ -4,6 +4,7 @@ import Layout from '@layouts/Layout.tsx';
 import { DeleteButton } from '@components/Buttons.tsx';
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Spinner } from "flowbite-react";
 
 const MembershipDelete = () => {
     const location = useLocation();
@@ -62,8 +63,9 @@ const MembershipDelete = () => {
     if (isLoading)
         return (
             <Layout>
-                <h3>Delete Member</h3>
-                <p>Loading...</p>
+                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '200px' }}>
+                    <Spinner size="xl" />
+                </div>
             </Layout>
         );
 

@@ -7,6 +7,7 @@ import SubmitButton from '@components/Buttons.tsx';
 import Layout from '@layouts/Layout.tsx';
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Spinner } from "flowbite-react";
 
 const MembershipUpdate = () => {
     const [errorMsg, setErrorMsg] = useState<string>('');
@@ -75,8 +76,9 @@ const MembershipUpdate = () => {
     if (isLoading)
         return (
             <Layout>
-                <h3>Update membership record</h3>
-                <p>Loading...</p>
+                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '200px' }}>
+                    <Spinner size="xl" />
+                </div>
             </Layout>
         );
 

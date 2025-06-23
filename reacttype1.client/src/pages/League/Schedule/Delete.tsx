@@ -6,6 +6,7 @@ import { DeleteButton } from '@components/Buttons.tsx';
 import Layout from '@layouts/Layout.tsx';
 import convertDate from '@components/convertDate.tsx';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Spinner } from "flowbite-react";
 
 const fetchSchedule = async (id: number): Promise<UpdateFormData | undefined> => {
     const schedulesStr = localStorage.getItem("schedule");
@@ -70,8 +71,9 @@ const ScheduleDelete = () => {
     if (isLoading)
         return (
             <Layout>
-                <h3>Delete game date in league {league.leagueName}</h3>
-                <p>Loading...</p>
+                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '200px' }}>
+                    <Spinner size="xl" />
+                </div>
             </Layout>
         );
 

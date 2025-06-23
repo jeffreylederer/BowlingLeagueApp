@@ -8,7 +8,7 @@ import { useMemo } from 'react';
 import fetchData from '@components/fetchData';
 import DisplayTablePaging from '@components/DisplayTablePaging';
 import { ColumnDef } from '@tanstack/react-table';
-
+import { Spinner } from "flowbite-react";
 
 function Players() {
     const user = new UserClass();
@@ -39,7 +39,13 @@ function Players() {
     ], [display]);
 
     if (isLoading)
-        return <p aria-label="Loading">Loading...</p>;
+        return (
+            <Layout>
+                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '200px' }}>
+                    <Spinner size="xl" />
+                </div>
+            </Layout>
+        );
 
     if (error)
         return <p aria-label="Error">Return Error: {error.message}</p>;

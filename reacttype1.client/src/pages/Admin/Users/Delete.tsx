@@ -44,7 +44,7 @@ const UsersDelete = () => {
     // useQuery for fetching user data
     const { data, isLoading, error } = useQuery<DetailsType>({
         queryKey: ['user', id],
-        queryFn: () => fetchData<DetailsType>(`/api/user/${id}`),
+        queryFn: () => fetchData<DetailsType>(`/api/users/${id}`),
         enabled: !!id,
     });
 

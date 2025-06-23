@@ -2,11 +2,11 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { UpdateFormData, UpdateFormDataSchema } from "./UpdateFormData.tsx";
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Checkbox, TextInput, Select } from "flowbite-react";
+import { Checkbox, TextInput, Select, Spinner } from "flowbite-react";
 import Layout from "@layouts/Layout.tsx";
 import SubmitButton from '@components/Buttons.tsx';
 import { PasswordType } from './ChangePasswordType.tsx';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 const UsersUpdate = () => {
@@ -37,6 +37,16 @@ const UsersUpdate = () => {
             return response.json();
         },
     });
+
+    // Set form values when data loads
+    useEffect(() => {
+        if (data) {
+            setValue("id", data.id);
+            setValue("isActive", data.isActive);
+            setValue("displayName", data.displayName);
+            setValue("roleId", data.roleId);
+        }
+    }, [data, setValue]);
 
     // Mutation for updating user
     const mutation = useMutation({
@@ -76,17 +86,13 @@ const UsersUpdate = () => {
         return (
             <Layout>
                 <h3>Update membership record</h3>
-                <p>Loading...</p>
+                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '200px' }}>
+                    <Spinner size="xl" />
+                </div>
             </Layout>
         );
 
     if (data) {
-        // Set default values for the form fields
-        setValue("id", data.id);
-        setValue("isActive", data.isActive);
-        setValue("displayName", data.displayName);
-        setValue("roleId", data.roleId);
-
         return (
             <Layout>
                 <h3>Update user record</h3>
