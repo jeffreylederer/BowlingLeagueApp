@@ -14,11 +14,8 @@ I used the following react packages:
 
 Each of these packages allowed me to write the client application.
 
-### useQuery
-This allowed me to call the web api server methods and with useMutation update/create record
 
-### useTable
-This displays table (with pagenation) on functions that list records
+
 
 ### bootstrap
 This allowed me to create pages that look correct independent of screen size.
@@ -42,6 +39,8 @@ I used these hooks:
 - useEffect - used like a page load in Win Form application for actions when the page loads.
 - useState - used like a ViewState in Win Form application except changes to useState forces a refresh of the page
 - useNavigate - like a Win Form Redirect method.
+- useMutation and useQuery - This allowed me to call the web api server methods
+- useTable - This displays tables (with pagenation) on functions that list records
 
 
 ## Web Api Server
