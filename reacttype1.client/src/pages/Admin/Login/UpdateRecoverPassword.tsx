@@ -3,7 +3,7 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import { UpdatePasswordData, UpdatePasswordDataScheme } from "./LoginDataTypes.tsx";
 import { zodResolver } from '@hookform/resolvers/zod';
 import { TextInput, Button, Spinner } from "flowbite-react";
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 
 const UpdateRecoverPassword = () => {
@@ -33,11 +33,7 @@ const UpdateRecoverPassword = () => {
         },
     });
 
-    useEffect(() => {
-        if (data !== undefined) {
-            setValue("id", data.toString());
-        }
-    }, [data, setValue]);
+   
 
     const mutation = useMutation({
         mutationFn: async (formData: UpdatePasswordData) => {
@@ -72,6 +68,7 @@ const UpdateRecoverPassword = () => {
         return <p aria-label="Error">Return Error: {error instanceof Error ? error.message : String(error)}</p>;
 
     if (data !== undefined) {
+        setValue("id", data.toString());
         return (
             <>
                 <h3>Update your password for {import.meta.env.VITE_SERVER_ClubName} league application</h3>

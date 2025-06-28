@@ -6,7 +6,7 @@ import { Checkbox, TextInput, Select, Spinner } from "flowbite-react";
 import Layout from "@layouts/Layout.tsx";
 import SubmitButton from '@components/Buttons.tsx';
 import { PasswordType } from './ChangePasswordType.tsx';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 const UsersUpdate = () => {
@@ -20,7 +20,6 @@ const UsersUpdate = () => {
         register,
         handleSubmit,
         formState: { errors },
-        setValue,
     } = useForm<UpdateFormData>({
         resolver: zodResolver(UpdateFormDataSchema),
     });
@@ -39,14 +38,7 @@ const UsersUpdate = () => {
     });
 
     // Set form values when data loads
-    useEffect(() => {
-        if (data) {
-            setValue("id", data.id);
-            setValue("isActive", data.isActive);
-            setValue("displayName", data.displayName);
-            setValue("roleId", data.roleId);
-        }
-    }, [data, setValue]);
+    
 
     // Mutation for updating user
     const mutation = useMutation({

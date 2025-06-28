@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import LeagueClass, { LeagueType } from "@components/LeagueClass.tsx";
 import UserClass from '@components/UserClass';
 import { useNavigate } from "react-router-dom";
@@ -13,19 +12,13 @@ import { useMemo } from 'react';
 
 function Home() {
     const navigate = useNavigate();
+    const user = new UserClass();
+    if (user === undefined || user.id == 0)
+        navigate("/Login");
+    const league = new LeagueClass();
 
-    
 
-
-    // User/session check and cleanup
-    useEffect(() => {
-        const user = new UserClass();
-        if (user === undefined || user.id == 0)
-            navigate("/Login");
-        const league = new LeagueClass();
-        league.Remove();
-        SetCount(0);
-    }, [navigate]);
+   
 
     // Fetch leagues with TanStack Query
     const { data, isLoading, isError, error } = useQuery<LeagueType[]>({
@@ -108,9 +101,10 @@ function Home() {
     }
 
     if (data) {
-        const leagues: LeagueType[] = data.filter((word) => word.active);
-        const league = new LeagueClass();
+        
         league.Remove();
+        SetCount(0);
+        const leagues: LeagueType[] = data.filter((word) => word.active);
         return (
             <Layout>
                 <h3 id="tableLabel">Select League</h3>

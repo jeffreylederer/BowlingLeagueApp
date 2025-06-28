@@ -1,40 +1,45 @@
-import { useEffect, useState } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import LeagueClass from "@components/LeagueClass.tsx";
 import Layout from '@layouts/Layout.tsx';
-import LeagueClass from "@components/LeagueClass";;
-
 import { SetCount } from '@components/CountMatches.tsx';
+import fetchText from '@components/fetchText.tsx';
+import { Spinner } from "flowbite-react";
+
 
 const CreateMatches = () => {
-    const [errorMsg, setErrorMsg] = useState('Created matches');
     const league = new LeagueClass();
-    useEffect(() => {
-        GetData();
-    });
+    const queryClient = useQueryClient();
+
+    const { data, isLoading, isError, error } = useQuery<string>({
+        queryKey: ['CreateMatches', league.id],
+        queryFn: () => fetchText(`/api/Matches/CreateSchedule/${league.id}`),
+        enabled: !!league.id
+    })
+
+
+    if (isLoading) {
+        return (
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '400px' }}>
+                <Spinner size="xl" />
+            </div>
+        );
+    }
+
+
+    if (isError) {
+        return <p className="errorMessage">{error instanceof Error ? error.message : "An error occurred."}</p>;
+    }
+
+    if (data != undefined && data == 'Created matches') {
+        SetCount(1);
+        queryClient.invalidateQueries({ queryKey: [['CreateMatches', league.id] });
+    }
     return (
         <Layout>
-            <h3>Create Schedule</h3>
-            <p style={{ textAlign: "center" }}>{errorMsg}</p>
+            <p>{data}</p>
         </Layout>
     );
 
-    
-
-    async function GetData() {
-        try {
-            const response = await fetch(`/api/Matches/CreateSchedule/${league.id}`);
-            if (!response.ok) {
-                setErrorMsg(`HTTP error! Status: ${response.status}`);
-                return;
-            }
-            const json = await response.text();
-            if (json === "Created matches")
-                SetCount(1);
-            else
-                setErrorMsg(json);
-        } catch (error) {
-            setErrorMsg(`Error:, ${error}`);
-        }
-    }
 }
 
 export default CreateMatches;

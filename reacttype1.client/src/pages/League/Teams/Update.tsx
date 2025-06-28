@@ -1,5 +1,5 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useForm, SubmitHandler } from "react-hook-form";
 import { UpdateFormData, UpdateFormDataSchema } from "./UpdateFormData.tsx";
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -62,24 +62,11 @@ const TeamUpdate = () => {
         register,
         handleSubmit,
         formState: { errors },
-        reset,
     } = useForm<UpdateFormData>({
         resolver: zodResolver(UpdateFormDataSchema)
     });
 
-    useEffect(() => {
-        if (data) {
-            reset({
-                id: data.id,
-                leagueid: data.leagueid,
-                teamNo: data.teamNo,
-                skip: data.skipid,
-                viceSkip: data.viceSkipid,
-                lead: data.leadid,
-                divisionId: data.division,
-            });
-        }
-    }, [data, reset]);
+   
 
     const onSubmit: SubmitHandler<UpdateFormData> = (formData) => {
         switch (league.teamSize) {
