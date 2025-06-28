@@ -34,6 +34,7 @@ const target = env.ASPNETCORE_HTTPS_PORT ? `https://localhost:${env.ASPNETCORE_H
     env.ASPNETCORE_URLS ? env.ASPNETCORE_URLS.split(';')[0] : 'https://localhost:7057';
 
 
+
 // https://vitejs.dev/config/
 export default defineConfig({
     
@@ -62,7 +63,7 @@ export default defineConfig({
                     secure: false
                 },
                 '/api': {
-                    target: 'http://localhost:5164',
+                    target: process.env.NODE_ENV !== 'production' ?'http://localhost:5164' : '',
                     changeOrigin: true,
                     secure: false,
                     ws: true,
