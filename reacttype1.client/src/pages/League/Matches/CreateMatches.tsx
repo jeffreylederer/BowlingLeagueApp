@@ -32,7 +32,7 @@ const CreateMatches = () => {
 
     if (data != undefined && data == 'Created matches') {
         SetCount(1);
-        queryClient.invalidateQueries({ queryKey: [['CreateMatches', league.id] });
+        queryClient.invalidateQueries({ queryKey: ['CreateMatches', league.id] });
     }
     return (
         <Layout>
