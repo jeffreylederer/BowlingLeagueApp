@@ -5,7 +5,8 @@ This a single page application (SPA) that looks like a Win Form application. The
 ## React client
 I used the following react packages:
 - @hookform/resolvers@3.9.1
-- axios@1.7.9
+- useQuery
+- useTable
 - flowbite-react@0.10.2
 - react-hook-form@7.54.2
 - react-router-dom@7.1.1
@@ -13,8 +14,8 @@ I used the following react packages:
 
 Each of these packages allowed me to write the client application.
 
-### axios
-This allowed me to call the web api server methos
+
+
 
 ### bootstrap
 This allowed me to create pages that look correct independent of screen size.
@@ -37,12 +38,13 @@ React Router is used as a simple, declarative routing library. Its only job is m
 I used these hooks:
 - useEffect - used like a page load in Win Form application for actions when the page loads.
 - useState - used like a ViewState in Win Form application except changes to useState forces a refresh of the page
-- useCallback - this hook is called whenever that parameters of the hook change.
 - useNavigate - like a Win Form Redirect method.
+- useMutation and useQuery - This allowed me to call the web api server methods
+- useTable - This displays tables (with pagenation) on functions that list records
 
 
 ## Web Api Server
-This is a standard .Net Core project. It uses controller methods (which are called by the axios method in the client) to access database records and pass the results to the client. It uses Entity Framework as an 
+This is a standard .Net Core project. It uses controller methods (which are called by the useQuery and  useMutation) to access database records and pass the results to the client. It uses Entity Framework as an 
 object-relational mapper (ORM).
 
 A clever thing I did was to call Stored Prcoedures on stored procedures with joins. First I created a stored procedure and then created a view that mimics the stored procedure results. Then running Scaffold-DbContex, I was able bring in the model of the view. Here is an example:
@@ -63,6 +65,7 @@ This creates a standard header and footer for each page. This compares to master
 I have added pagination to the Membership and Players list pages
 ### Unit Testing
 I have added vitest component library and created a simple unit test. It would be easy to create additional tests.
-
+### Server/Proxy
+This simplifies that url of useQuery and useMutation hooks
 
 
