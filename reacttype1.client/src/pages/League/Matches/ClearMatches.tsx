@@ -33,6 +33,7 @@ const ClearMatches = () => {
     if (data != undefined && data == 'Cleared matches') { 
         SetCount(0);
         queryClient.invalidateQueries({ queryKey: ['ClearMatches', league.id] });
+        queryClient.invalidateQueries({ queryKey: ['CreateMatches', league.id] });
     }
     return (
         <Layout>

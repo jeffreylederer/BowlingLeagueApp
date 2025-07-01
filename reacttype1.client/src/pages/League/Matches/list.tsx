@@ -101,6 +101,29 @@ function Matches() {
         );
     }
 
+    if (data != undefined ) {
+        const week = data.find(x => x.id == weekid)
+        if (week?.playOffs) {
+            return (
+                <Layout>
+                    <h3>Games in {league.leagueName} league</h3>
+                    <div className="toLeft">
+                        <p className="toLeft">Date: <select onChange={selectChange} value={weekid}>
+                            <option value="0" key="0" disabled>Select date</option>
+                            {data?.map(item =>
+                                <option key={item.id} value={item.id.toString()}>{convertDate(item.gameDate)}</option>
+                            )}
+                        </select><br />
+                            <a href={standingUrl} target='blank' hidden={weekid == 0}>Standings report</a>
+                           
+                        </p>
+                    </div>
+                    <p>Playoff week</p>
+                </Layout>
+            );
+        }
+    }
+
     return (
         <Layout>
             <h3>Games in {league.leagueName} league</h3>

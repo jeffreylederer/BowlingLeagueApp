@@ -308,7 +308,7 @@ namespace ReactType1.Server.Controllers
             }
 
             var league = _context.Leagues.Find(id);
-            var weeks = _context.Schedules.Where(x => x.Leagueid == id).ToList();
+            var weeks = _context.Schedules.Where(x => x.Leagueid == id && !x.PlayOffs).ToList();
             var teams = _context.Teams.Where(x => x.Leagueid == id).ToList();
             if (weeks.Count == 0)
             {

@@ -1,4 +1,4 @@
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import LeagueClass from "@components/LeagueClass.tsx";
 import Layout from '@layouts/Layout.tsx';
 import { SetCount } from '@components/CountMatches.tsx';
@@ -8,12 +8,13 @@ import { Spinner } from "flowbite-react";
 
 const CreateMatches = () => {
     const league = new LeagueClass();
-    const queryClient = useQueryClient();
+    
 
     const { data, isLoading, isError, error } = useQuery<string>({
         queryKey: ['CreateMatches', league.id],
         queryFn: () => fetchText(`/api/Matches/CreateSchedule/${league.id}`),
-        enabled: !!league.id
+        enabled: !!league.id,
+        staleTime: Infinity
     })
 
 
@@ -32,7 +33,7 @@ const CreateMatches = () => {
 
     if (data != undefined && data == 'Created matches') {
         SetCount(1);
-        queryClient.invalidateQueries({ queryKey: ['CreateMatches', league.id] });
+        
     }
     return (
         <Layout>

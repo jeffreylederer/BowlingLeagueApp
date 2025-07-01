@@ -1,6 +1,7 @@
 ﻿
 using ReactType1.Server.Models;
 using System.IO;
+using static QuestPDF.Helpers.Colors;
 
 namespace ReactType1.Server.Code
 {
@@ -94,6 +95,7 @@ namespace ReactType1.Server.Code
                 int rink = rnd.Next(0, numRinks - 1);
                 foreach (CalculatedMatch week in round)
                 {
+   
                     if (week.Rink != -1)
                     {
                         week.Rink = rink % numRinks;
@@ -113,9 +115,10 @@ namespace ReactType1.Server.Code
             var teamsinDivision2 = teams.Count(x => x.DivisionId == 2);
             List<CalculatedMatch> x1 = RoundRobin(weeks, teamsinDivision1);
             List<CalculatedMatch> x2 = RoundRobin(weeks, teamsinDivision2);
-            foreach(var item in x2)
+         
+            foreach (var item in x2)
             {
-                item.Rink += teamsinDivision1;
+                item.Rink += teamsinDivision1/2;
                 item.Team1 += teamsinDivision1;
                 item.Team2 += teamsinDivision1;
                 x1.Add(item);
