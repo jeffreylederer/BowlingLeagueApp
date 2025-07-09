@@ -2,7 +2,7 @@
 using ReactType1.Server.Models;
 using System;
 
-namespace ReactType1.Server.Code
+namespace ReactType1.Server.DTOs
 {
     
 

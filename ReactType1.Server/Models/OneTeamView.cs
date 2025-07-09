@@ -7,7 +7,7 @@ public partial class OneTeamView
 {
     public int Id { get; set; }
 
-    public required string Skip { get; set; }
+    public string? Skip { get; set; }
 
     public string? ViceSkip { get; set; }
 

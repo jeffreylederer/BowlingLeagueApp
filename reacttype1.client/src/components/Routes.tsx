@@ -47,6 +47,13 @@ import ScheduleReport from "@pages/League/Matches/ScheduleReport.tsx";
 import CreateMatches  from "@pages/League/Matches/CreateMatches.tsx";
 import ClearMatches from "@pages/League/Matches/ClearMatches.tsx";
 
+import PlayoffsUpdate from "@pages/League/Playoffs/Update.tsx";
+import PlayoffsCreate from "@pages/League/Playoffs/Create.tsx";
+import Playoffs from "@pages/League/Playoffs/List.tsx";
+import PlayoffScoring from "@pages/League/Playoffs/Scoring.tsx";
+import ListGames from "@pages/League/Playoffs/ListGames.tsx";
+import GameReport from "@pages/League/Playoffs/GameReport.tsx";
+import PlayoffsResults from "@pages/League/Playoffs/PlayoffResults.tsx";
 
 
 
@@ -119,6 +126,14 @@ function RouteMenu() {
             <Route path="/League/ScheduleReport" element={<ScheduleReport />} />
             <Route path="/League/CreateMatches" element={<CreateMatches />} />
             <Route path="/League/ClearMatches" element={<ClearMatches />} />
+
+            <Route path="/League/Playoffs" element={<Playoffs />} />
+            <Route path="/League/Playoffs/Update" element={<PlayoffsUpdate />} />
+            <Route path="/League/Playoffs/Create" element={<PlayoffsCreate />} />
+            <Route path="/League/Playoffs/PlayoffScoring" element={<PlayoffScoring />} />
+            <Route path="/League/Playoffs/ListGames" element={<ListGames />} />
+            <Route path="/League/Playoffs/GameReport" element={<GameReport />} />
+            <Route path="/League/Playoffs/PlayoffResults" element={<PlayoffsResults />} />
                            
 
                 

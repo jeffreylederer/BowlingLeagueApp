@@ -226,6 +226,20 @@ namespace ReactType1.Server.Controllers
             }
             return Ok();
         }
+
+        [HttpGet("AllTeamsWithNames/{id}")]
+        public async Task<IEnumerable<AllTeamsWithNamesView>> AllTeamsWithNames(int id)
+        {
+            var list = await _context.AllTeamsWithNamesViews
+                     .FromSql($"EXEC AllTeamsWithNames {id}").ToListAsync();
+            ;
+
+            if (list == null)
+            {
+                throw new Exception("Teams not found");
+            }
+            return list;
+        }
     }
 
     public partial class TeamType

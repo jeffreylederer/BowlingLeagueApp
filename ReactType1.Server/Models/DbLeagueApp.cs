@@ -13,6 +13,8 @@ public partial class DbLeagueApp : DbContext
 
     public virtual DbSet<AllTeamsView> AllTeamsViews { get; set; }
 
+    public virtual DbSet<AllTeamsWithNamesView> AllTeamsWithNamesViews { get; set; }
+
     public virtual DbSet<GetByesView> GetByesViews { get; set; }
 
     public virtual DbSet<GetMatchAllView> GetMatchAllViews { get; set; }
@@ -40,6 +42,8 @@ public partial class DbLeagueApp : DbContext
     public virtual DbSet<OneTeamView> OneTeamViews { get; set; }
 
     public virtual DbSet<Player> Players { get; set; }
+
+    public virtual DbSet<PlayoffGamesView> PlayoffGamesViews { get; set; }
 
     public virtual DbSet<RecoverPassword> RecoverPasswords { get; set; }
 
@@ -78,6 +82,17 @@ public partial class DbLeagueApp : DbContext
             entity.Property(e => e.Skipid).HasColumnName("skipid");
             entity.Property(e => e.ViceSkip)
                 .HasMaxLength(101)
+                .IsUnicode(false);
+        });
+
+        modelBuilder.Entity<AllTeamsWithNamesView>(entity =>
+        {
+            entity
+                .HasNoKey()
+                .ToView("AllTeamsWithNamesView");
+
+            entity.Property(e => e.TeamMembers)
+                .HasMaxLength(154)
                 .IsUnicode(false);
         });
 
@@ -348,6 +363,15 @@ public partial class DbLeagueApp : DbContext
                 .HasForeignKey(d => d.MembershipId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Player_Membership");
+        });
+
+        modelBuilder.Entity<PlayoffGamesView>(entity =>
+        {
+            entity
+                .HasNoKey()
+                .ToView("PlayoffGamesView");
+
+            entity.Property(e => e.Id).HasColumnName("id");
         });
 
         modelBuilder.Entity<RecoverPassword>(entity =>

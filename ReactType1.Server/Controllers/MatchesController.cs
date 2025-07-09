@@ -1,10 +1,14 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using QuestPDF.Fluent;
 using QuestPDF.Infrastructure;
 using ReactType1.Server.Code;
+using ReactType1.Server.DTOs.Match;
 using ReactType1.Server.Models;
+using System.Net;
+using System.Net.NetworkInformation;
 using System.Text;
 
 // https://medium.com/@hassanjabbar2017/performing-crud-operations-using-react-with-net-core-a-step-by-step-guide-0176efa86934
@@ -14,10 +18,10 @@ namespace ReactType1.Server.Controllers
     [Route("api/[controller]")]
     public class MatchesController(DbLeagueApp context, IConfiguration configuration) : ControllerBase
     {
-        private readonly DbLeagueApp _context= context;
-        private readonly IConfiguration _configuration= configuration;
+        private readonly DbLeagueApp _context = context;
+        private readonly IConfiguration _configuration = configuration;
 
-        
+
         // GET: Matches
         [HttpGet("{id}")]
         public async Task<IEnumerable<OneMatchWeekView>?> Get(int id)
@@ -28,6 +32,23 @@ namespace ReactType1.Server.Controllers
             return list;
         }
 
+
+        // GET: Matches
+        [HttpGet("GetMatchesForUpdate/{id}")]
+        public async Task<IEnumerable<UpdateMatchDto>?> GetMatchesForUpdate(int id)
+        {
+            var list = await _context.Matches
+                     .Where(x => x.WeekId == id && x.Rink != -1)
+                     .Select(x => new UpdateMatchDto
+                     {
+                         Id = x.Id,
+                         TeamNo1 = x.TeamNo1,
+                         TeamNo2 = x.TeamNo2
+                     })
+                     .ToListAsync();
+            return list;
+        }
+
         // GET: Matches
         [HttpGet("GetOneMatch/{id}")]
         public async Task<OneMatchView> GetOneMatch(int id)
@@ -35,7 +56,7 @@ namespace ReactType1.Server.Controllers
             var list = await _context.OneMatchViews
                      .FromSql($"EXEC OneMatch {id}").ToListAsync();
             var item = list[0];
-                    
+
             if (item == null)
             {
                 throw new Exception("Match not found");
@@ -44,20 +65,57 @@ namespace ReactType1.Server.Controllers
         }
 
         // GET: Matches
-        [HttpGet("GetAllMatches/{id}")]
-        public async Task<int> GetAllMatches(int id)
+        [HttpGet("PlayoffGames/{id}")]
+        public async Task<IEnumerable<PlayoffGamesView?>> PlayoffGames(int id)
         {
-            var query =from m in _context.Matches
-            join s in _context.Schedules 
-            on  m.WeekId equals s.Id
-            where s.Leagueid == id && m.Rink != -1
-            select new
-            {
-               m.Id
-            };
+            var list = await _context.PlayoffGamesViews
+                     .FromSql($"EXEC PlayoffGames {id}").ToListAsync();
+            
+            return list;
+        }
+
+
+        // GET: Matches
+        [HttpGet("GetAllMatches/{id}")]
+        public int GetAllMatches(int id)
+        {
+            var query = from m in _context.Matches
+                        join s in _context.Schedules
+                        on m.WeekId equals s.Id
+                        where s.Leagueid == id && m.Rink != -1
+                        select new
+                        {
+                            m.Id
+                        };
             var list = query.ToListAsync();
             var list1 = list.Result;
             return list1.Count;
+        }
+
+        [HttpPost]
+        public async Task<ActionResult<CreateMatchDto>> Create(IEnumerable<CreateMatchDto> list)
+        {
+            var listItem = list.FirstOrDefault();
+            if (listItem != null && _context.Matches.Any(x => x.WeekId == listItem.WeekId))
+            {
+                return BadRequest(new { error = "Matches already exixts.", code = 400 });
+            }
+            foreach (var item in list)
+            {
+                var match = new Match()
+                {
+                    WeekId = item.WeekId,
+                    Rink = item.Rink,
+                    TeamNo1 = item.TeamNo1,
+                    TeamNo2 = item.TeamNo2,
+                    Team1Score = 0,
+                    Team2Score = 0,
+                    ForFeitId = 0
+                };
+                _context.Matches.Add(match);
+            }
+            await _context.SaveChangesAsync();
+            return Ok(list);
         }
 
         // GET: Matches
@@ -74,11 +132,11 @@ namespace ReactType1.Server.Controllers
             _context.Entry(match).State = EntityState.Modified;
             try
             {
-               _context.SaveChanges();
+                _context.SaveChanges();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                return StatusCode(500,ex.Message);
+                return StatusCode(500, ex.Message);
             }
 
 
@@ -89,10 +147,10 @@ namespace ReactType1.Server.Controllers
         [HttpGet("Byes/{id}")]
         public async Task<ActionResult<string>> Byes(int id)
         {
-            
+
             QuestPDF.Settings.License = LicenseType.Community;
             var report = new ByesReport();
-            var site = _configuration.GetValue<string>("SiteInfo:clubname")??"Unknown club";
+            var site = _configuration.GetValue<string>("SiteInfo:clubname") ?? "Unknown club";
             var document = await report.CreateDocument(id, _context, site);
             byte[] pdfBytes = document.GeneratePdf();
             var results = Convert.ToBase64String(pdfBytes);
@@ -112,7 +170,7 @@ namespace ReactType1.Server.Controllers
                 SqlParameter[] parameters = [
                     new("matchid", id)
                 ];
-                var match =  _context.OneMatchWeekViews
+                var match = _context.OneMatchWeekViews
                          .FromSqlRaw("EXEC OneMatch @matchid", parameters)
                          .AsEnumerable()
                          .FirstOrDefault();
@@ -122,9 +180,9 @@ namespace ReactType1.Server.Controllers
                 }
                 return match;
             }
-            catch(Exception)
+            catch (Exception)
             {
-                
+
             }
             return null;
         }
@@ -146,7 +204,7 @@ namespace ReactType1.Server.Controllers
             match.Team1Score = item.Team1Score;
             match.Team2Score = item.Team2Score;
             match.ForFeitId = item.Forfeit;
-           
+
 
             _context.Entry(match).State = EntityState.Modified;
 
@@ -170,8 +228,29 @@ namespace ReactType1.Server.Controllers
             {
                 return StatusCode(500, ex.Message);
             }
-            
+
         }
+
+        [HttpPut("UpdateMatches")]
+        public async Task<ActionResult<UpdateMatchDto>> UpdateMatches([FromBody] List<UpdateMatchDto> items)
+        {
+            foreach (var item in items)
+            {
+                var match = await _context.Matches.FindAsync(item.Id);
+                if (match == null)
+                {
+                    return NotFound($"Match with ID {item.Id} not found.");
+                }
+                match.TeamNo1 = item.TeamNo1;
+                match.TeamNo2 = item.TeamNo2 ?? 0; // Handle nullable TeamNo2
+                _context.Entry(match).State = EntityState.Modified;
+            }
+            _context.SaveChanges();
+            return Ok(items);
+        }
+
+
+
 
         // GET: Players/Details/5
         [HttpGet("Standings/{id}")]
@@ -240,7 +319,53 @@ namespace ReactType1.Server.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(400,ex.Message);
+                return StatusCode(400, ex.Message);
+            }
+        }
+
+        [HttpGet("PlayoffResults/{id}")]
+        public async Task<ActionResult<string>> PlayoffResults(int? id)
+        {
+            if (id == null)
+            {
+                return StatusCode(500, "Bad value");
+            }
+            QuestPDF.Settings.License = LicenseType.Community;
+            var site = _configuration.GetValue<string>("SiteInfo:clubname") ?? "Unknown club";
+            var report = new PlayoffResults();
+            try
+            {
+                var document = await report.CreateDocument(id.Value, _context, site);
+                byte[] pdfBytes = document.GeneratePdf();
+                var results = Convert.ToBase64String(pdfBytes);
+                return Ok(results);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(400, ex.Message);
+            }
+        }
+
+        [HttpGet("GameReport/{id}")]
+        public async Task<ActionResult<string>> GameReport(int? id)
+        {
+            if (id == null)
+            {
+                return StatusCode(500, "Bad value");
+            }
+            QuestPDF.Settings.License = LicenseType.Community;
+            var site = _configuration.GetValue<string>("SiteInfo:clubname") ?? "Unknown club";
+            var report = new GameReport();
+            try
+            {
+                var document = await report.CreateDocument(id.Value, _context, site);
+                byte[] pdfBytes = document.GeneratePdf();
+                var results = Convert.ToBase64String(pdfBytes);
+                return Ok(results);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(400, ex.Message);
             }
         }
 
@@ -265,7 +390,7 @@ namespace ReactType1.Server.Controllers
                       match.Rink
                   }
                 )
-              .Where(x => x.Leagueid == id )
+              .Where(x => x.Leagueid == id)
              .ToList();
 
             if (list.Count == 0)
@@ -273,9 +398,9 @@ namespace ReactType1.Server.Controllers
 
             if (list.Any(x => x.score > 0))
             {
-                return  "Matches cannot be delete, some matches have scores";
+                return "Matches cannot be delete, some matches have scores";
             }
-            
+
             try
             {
 
@@ -288,12 +413,12 @@ namespace ReactType1.Server.Controllers
                     }
                 }
 
-                
+
                 await _context.SaveChangesAsync();
             }
             catch (Exception e)
             {
-                 return  $"Matches were not removed, Error: {e.Message}"; 
+                return $"Matches were not removed, Error: {e.Message}";
             }
 
             return Ok("Cleared matches");
@@ -323,7 +448,7 @@ namespace ReactType1.Server.Controllers
                    .ToListAsync();
             if (list.Count > 0)
             {
-                return  "Matches exist, clear schedule first";
+                return "Matches exist, clear schedule first";
             }
 
             var sl = new CreateScheduleList();
@@ -336,8 +461,8 @@ namespace ReactType1.Server.Controllers
             {
                 matches = sl.matchesWithDivisions(weeks.Count, _context, id.Value);
             }
-            
-            
+
+
             foreach (var item in matches)
             {
                 var TeamNo1 = teams.Find(x => x.TeamNo == item.Team1 + 1);
@@ -346,8 +471,8 @@ namespace ReactType1.Server.Controllers
                 {
                     WeekId = weeks[item.Week].Id,
                     Rink = item.Rink,
-                    TeamNo1 = TeamNo1== null ? 0 : TeamNo1.Id,
-                    TeamNo2 = TeamNo2 == null? 0 : TeamNo2.Id,
+                    TeamNo1 = TeamNo1 == null ? 0 : TeamNo1.Id,
+                    TeamNo2 = TeamNo2 == null ? 0 : TeamNo2.Id,
                     Team1Score = 0,
                     Team2Score = 0,
                     ForFeitId = 0
@@ -362,10 +487,10 @@ namespace ReactType1.Server.Controllers
             }
             catch (Exception e)
             {
-                return  $"Could not create matches: {e.Message}";
+                return $"Could not create matches: {e.Message}";
             }
             return Ok("Created matches");
-            
+
         }
 
 
@@ -381,6 +506,23 @@ namespace ReactType1.Server.Controllers
         public int Team1Score { get; set; }
         public int Team2Score { get; set; }
         public int Forfeit { get; set; }
+
+    }
+
+    public class UpdateMatchDto
+    {
+        public int Id { get; set; }
+        public int TeamNo1 { get; set; }
+        public int? TeamNo2 { get; set; }
+
+    }
+
+    public class CreeateMatchDto
+    {
+        public int WeekId { get; set; }
+        public int TeamNo1 { get; set; }
+        public int? TeamNo2 { get; set; }
+        public int Rink { get; set; }
 
     }
 

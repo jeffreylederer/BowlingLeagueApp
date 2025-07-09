@@ -9,7 +9,8 @@ function ScheduleReport() {
     const { data, isLoading, isError, error } = useQuery<string>({
         queryKey: ['ScheduleReport-pdf', league.id],
         queryFn: () => fetchText(`/api/Matches/ScheduleReport/${league.id}`),
-        enabled: !!league.id
+        enabled: !!league.id,
+        staleTime: Infinity
     },
     );
 

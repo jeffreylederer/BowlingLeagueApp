@@ -53,7 +53,8 @@ function Menu() {
                                     <li><NavLink className="dropdown-item" to="/League/Schedule">Schedule</NavLink></li>
                                     <li><NavLink className="dropdown-item" to="/League/Teams">Teams</NavLink></li>
                                     <li ><NavLink className="dropdown-item" to="/League/Matches?id=0">Matches</NavLink></li>
-                                    <li><a className="dropdown-item" target='blank' href="/League/Byes">Byes Report</a></li>
+                                    <li hidden={!league.playOffs} ><NavLink className="dropdown-item" to="/League/Playoffs">Playoffs</NavLink></li>
+                                    <li ><a className="dropdown-item" target='blank' href="/League/Byes">Byes Report</a></li>
                                     <li ><a className="dropdown-item" target='blank' href="/League/ScheduleReport">Schedule Report</a></li>
                                     <li style={{ display: showAdmin ? "inline" : "none" }}>---------------------</li>
                                     <li style={{ display: showAdmin ? "inline" : "none" }}><NavLink className="dropdown-item" to="/League/CreateMatches">Create Matches</NavLink></li>

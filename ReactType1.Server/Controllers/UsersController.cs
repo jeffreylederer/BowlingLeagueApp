@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ReactType1.Server.Code;
+using ReactType1.Server.DTOs;
 using ReactType1.Server.Models;
 using System.Data;
 
