@@ -12,7 +12,7 @@ function PlayoffResults() {
 
     const { data, isLoading, isError, error } = useQuery<string>({
         queryKey: ['ScheduleReport-pdf', league.id],
-        queryFn: () => fetchText(`/api/Matches/PlayoffResults/${weekid}`),
+        queryFn: () => fetchText(`/api/Playoffs/PlayoffResults/${weekid}`),
         enabled: !!league.id
     },
     );

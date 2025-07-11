@@ -50,7 +50,7 @@ function PlayoffsCreate() {
         })) || [];
   
 
-        const response = await fetch('/api/Matches', {
+        const response = await fetch('/api/Playoffs', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(theMatches),

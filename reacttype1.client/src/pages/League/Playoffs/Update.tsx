@@ -19,7 +19,7 @@ function PlayoffsUpdate ()  {
     const queryClient = useQueryClient();
 
     const SaveMatches = async () => {
-        const response = await fetch('/api/Matches/UpdateMatches', {
+        const response = await fetch('/api/Playoffs', {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(matches),
@@ -53,7 +53,7 @@ function PlayoffsUpdate ()  {
 
     const { data: dataMatches, isLoading : isLoadingMatch, error: errorMatch, isError: isErrorMatch } = useQuery<PlayOffMatchType[] | undefined>({
         queryKey: ['UpdateMatches', weekid],
-        queryFn: () => fetchData(`/api/Matches/GetMatchesForUpdate/${weekid}`),
+        queryFn: () => fetchData(`/api/Playoffs/GetMatchesForUpdate/${weekid}`),
         staleTime: Infinity
     });
 
