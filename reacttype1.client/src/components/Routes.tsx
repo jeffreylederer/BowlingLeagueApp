@@ -2,43 +2,43 @@ import {
     Routes,
     Route
 } from "react-router-dom";
-import { Suspense } from "react";    
+import { Suspense, lazy } from "react";    
 
 
 
-import Membership from "@pages/Membership/List.tsx";
-import MembershipDelete from "@pages/Membership/Delete.tsx";
-import MembershipUpdate from "@pages/Membership/Update.tsx";
-import MembershipCreate from "@pages/Membership/Create.tsx";
+const Membership = lazy(() => import("@pages/Membership/List.tsx"));
+const MembershipDelete = lazy(() => import("@pages/Membership/Delete.tsx"));
+const MembershipUpdate = lazy(() => import("@pages/Membership/Update.tsx"));
+const MembershipCreate = lazy(() => import("@pages/Membership/Create.tsx"));
 
-import League from "@pages/Admin/League/List.tsx";
-import LeagueDelete from "@pages/Admin/League/Delete.tsx";
-import LeagueUpdate from "@pages/Admin/League/Update.tsx";
-import LeagueCreate from "@pages/Admin/League/Create.tsx";
-import LeagueDetails from "@pages/Admin/League/Details.tsx";
+const League = lazy(() => import("@pages/Admin/League/List.tsx"));
+const LeagueDelete = lazy(() => import("@pages/Admin/League/Delete.tsx"));
+const LeagueUpdate = lazy(() => import("@pages/Admin/League/Update.tsx"));
+const LeagueCreate = lazy(() => import("@pages/Admin/League/Create.tsx"));
+const LeagueDetails = lazy(() => import("@pages/Admin/League/Details.tsx"));
 
-import Users from "@pages/Admin/Users/List.tsx";
-import UsersDelete from "@pages/Admin/Users/Delete.tsx";
-import UsersUpdate from "@pages/Admin/Users/Update.tsx";
-import UsersCreate from "@pages/Admin/Users/Create.tsx";
-import ChangePassword from "@pages/Admin/Users/ChangePassword.tsx";
+const Users = lazy(() => import("@pages/Admin/Users/List.tsx"));
+const UsersDelete = lazy(() => import("@pages/Admin/Users/Delete.tsx"));
+const UsersUpdate = lazy(() => import("@pages/Admin/Users/Update.tsx"));
+const UsersCreate = lazy(() => import("@pages/Admin/Users/Create.tsx"));
+const ChangePassword = lazy(() => import("@pages/Admin/Users/ChangePassword.tsx"));
 
 
 
-import Players from "@pages/League/Players/List.tsx";
-import PlayersDelete from "@pages/League/Players/Delete.tsx";
-import PlayersCreate from "@pages/League/Players/Create.tsx";
+const Players = lazy(() => import("@pages/League/Players/List.tsx"));
+const PlayersDelete = lazy(() => import("@pages/League/Players/Delete.tsx"));
+const PlayersCreate = lazy(() => import("@pages/League/Players/Create.tsx"));
 
-import Schedule from "@pages/League/Schedule/List.tsx";
-import SchedulesDelete from "@pages/League/Schedule/Delete.tsx";
-import SchedulesCreate from "@pages/League/Schedule/Create.tsx";
-import SchedulesUpdate from "@pages/League/Schedule/Update.tsx";
+const Schedule = lazy(() => import("@pages/League/Schedule/List.tsx"));
+const SchedulesDelete = lazy(() => import("@pages/League/Schedule/Delete.tsx"));
+const SchedulesCreate = lazy(() => import("@pages/League/Schedule/Create.tsx"));
+const SchedulesUpdate = lazy(() => import("@pages/League/Schedule/Update.tsx"));
 
-import Teams from "@pages/League/Teams/List.tsx";
-import TeamsDelete from "@pages/League/Teams/Delete.tsx";
-import TeamsCreate from "@pages/League/Teams/Create.tsx";
-import TeamsUpdate from "@pages/League/Teams/Update.tsx";
-import TeamReport from "@pages/League/Teams/Report.tsx";
+const Teams = lazy(() => import("@pages/League/Teams/List.tsx"));
+const TeamsDelete = lazy(() => import("@pages/League/Teams/Delete.tsx"));
+const TeamsCreate = lazy(() => import("@pages/League/Teams/Create.tsx"));
+const TeamsUpdate = lazy(() => import("@pages/League/Teams/Update.tsx"));
+const TeamReport = lazy(() => import("@pages/League/Teams/Report.tsx"));
 
 import Matches from "@pages/League/Matches/list.tsx";
 import ScoreCard from "@pages/League/Matches/ScoreCard.tsx";
@@ -61,10 +61,10 @@ import PlayoffsResults from "@pages/League/Playoffs/PlayoffResults.tsx";
 
 import Logoff from "@pages/Admin/Login/Logoff.tsx";
 import Login from "@pages/Admin/Login/Login.tsx";
-import UserUpdatePassword from "@pages/Admin/Login/UserUpdatePassword.tsx";
-import UpdateRecoverPassword from "@pages/Admin/Login/UpdateRecoverPassword.tsx";
-import RecoverPasswordRequest from "@pages/Admin/Login/RecoverPasswordRequest.tsx";
-import NotLogin from "@pages/Admin/Login/NotLogin.tsx";
+const UserUpdatePassword = lazy(() => import("@pages/Admin/Login/UserUpdatePassword.tsx"));
+const UpdateRecoverPassword = lazy(() => import("@pages/Admin/Login/UpdateRecoverPassword.tsx"));
+const RecoverPasswordRequest = lazy(() => import("@pages/Admin/Login/RecoverPasswordRequest.tsx"));
+const NotLogin = lazy(() => import("@pages/Admin/Login/NotLogin.tsx"));
 
 
 import About from "@pages/About.tsx";
@@ -232,10 +232,10 @@ function RouteMenu() {
 				<Suspense fallback={<div>Loading...</div>}>
 					<UpdateRecoverPassword />
 				</Suspense>}  />
-            <Route path="/RecoverPasswordRequest" element={
+			<Route path="/RecoverPasswordRequest" element={
 				<Suspense fallback={<div>Loading...</div>}>
 					<RecoverPasswordRequest />
-				</Suspense>}  />
+				</Suspense>} />
             <Route path='*' element={<NotLogin />} />
             <Route path="/Welcome" element={<Welcome/>} />
 
