@@ -2,6 +2,8 @@ import {
     Routes,
     Route
 } from "react-router-dom";
+import { Suspense } from "react";    
+
 
 
 import Membership from "@pages/Membership/List.tsx";
@@ -83,40 +85,121 @@ function RouteMenu() {
         <Routes>
             <Route path="/" element={<Home />} />
 
-            <Route path="/Membership" element={<Membership />} />
-            <Route path="/Membership/Delete" element={<MembershipDelete />} />
-            <Route path="/Membership/Update" element={<MembershipUpdate />} />
-            <Route path="/Membership/Create" element={<MembershipCreate />} />
+            <Route path="/Membership" element={
+				<Suspense fallback={<div>Loading...</div>}>
+					<Membership />
+				</Suspense>}  />
+            <Route path="/Membership/Delete" element={
+				<Suspense fallback={<div>Loading...</div>}>
+					<MembershipDelete />
+				</Suspense>}  />
+            <Route path="/Membership/Update" element={
+				<Suspense fallback={<div>Loading...</div>}>
+					<MembershipUpdate />
+				</Suspense>}  />
+            <Route path="/Membership/Create" element={
+				<Suspense fallback={<div>Loading...</div>}>
+					<MembershipCreate />
+				</Suspense>}  />
 
-            <Route path="/Admin/Leagues" element={<League />} />
-            <Route path="/Admin/League/Delete" element={<LeagueDelete />} />
-            <Route path="/Admin/League/Update" element={<LeagueUpdate />} />
-            <Route path="/Admin/League/Create" element={<LeagueCreate />} />
-            <Route path="/Admin/League/Details" element={<LeagueDetails />} />
+            <Route path="/Admin/Leagues" element={
+				<Suspense fallback={<div>Loading...</div>}>
+					<League />
+				</Suspense>}  />
+            <Route path="/Admin/League/Delete" element={
+				<Suspense fallback={<div>Loading...</div>}>
+					<LeagueDelete />
+				</Suspense>}  />
+            <Route path="/Admin/League/Update" element={
+				<Suspense fallback={<div>Loading...</div>}>
+					<LeagueUpdate />
+				</Suspense>}  />
+            <Route path="/Admin/League/Create" element={
+				<Suspense fallback={<div>Loading...</div>}>
+					<LeagueCreate />
+				</Suspense>}  />
+            <Route path="/Admin/League/Details" element={
+				<Suspense fallback={<div>Loading...</div>}>
+					<LeagueDetails />
+				</Suspense>}  />
 
-            <Route path="/Admin/Users" element={<Users />} />
-            <Route path="/Admin/Users/Delete" element={<UsersDelete />} />
-            <Route path="/Admin/Users/Update" element={<UsersUpdate />} />
-            <Route path="/Admin/Users/Create" element={<UsersCreate />} />
-            <Route path="/Admin/Users/RecoverPasswordRequest" element={<RecoverPasswordRequest />} />
-            <Route path="/Admin/Users/ChangePassword" element={<ChangePassword />} />
+            <Route path="/Admin/Users" element={
+				<Suspense fallback={<div>Loading...</div>}>
+					<Users />
+				</Suspense>}  />
+            <Route path="/Admin/Users/Delete" element={
+				<Suspense fallback={<div>Loading...</div>}>
+					<UsersDelete />
+				</Suspense>}  />
+            <Route path="/Admin/Users/Update" element={
+				<Suspense fallback={<div>Loading...</div>}>
+					<UsersUpdate />
+				</Suspense>}  />
+            <Route path="/Admin/Users/Create" element={
+				<Suspense fallback={<div>Loading...</div>}>
+					<UsersCreate />
+				</Suspense>}  />
+            <Route path="/Admin/Users/RecoverPasswordRequest" element={
+				<Suspense fallback={<div>Loading...</div>}>
+					<RecoverPasswordRequest />
+				</Suspense>}  />
+            <Route path="/Admin/Users/ChangePassword" element={
+				<Suspense fallback={<div>Loading...</div>}>
+					<ChangePassword />
+				</Suspense>}  />
             
 
 
-            <Route path="/League/Players" element={<Players />} />
-            <Route path="/League/Players/Delete" element={<PlayersDelete />} />
-            <Route path="/League/Players/Create" element={<PlayersCreate />} />
+            <Route path="/League/Players" element={
+				<Suspense fallback={<div>Loading...</div>}>
+					<Players />
+				</Suspense>}  />
+            <Route path="/League/Players/Delete" element={
+				<Suspense fallback={<div>Loading...</div>}>
+					<PlayersDelete />
+				</Suspense>}  />
+            <Route path="/League/Players/Create" element={
+				<Suspense fallback={<div>Loading...</div>}>
+					<PlayersCreate />
+				</Suspense>}  />
 
-            <Route path="/League/Schedule" element={<Schedule />} />
-            <Route path="/League/Schedule/Delete" element={<SchedulesDelete />} />
-            <Route path="/League/Schedule/Create" element={<SchedulesCreate />} />
-            <Route path="/League/Schedule/Update" element={<SchedulesUpdate />} />
+            <Route path="/League/Schedule" element={
+				<Suspense fallback={<div>Loading...</div>}>
+					<Schedule />
+				</Suspense>}  />
+            <Route path="/League/Schedule/Delete" element={
+				<Suspense fallback={<div>Loading...</div>}>
+					<SchedulesDelete />
+				</Suspense>}  />
+            <Route path="/League/Schedule/Create" element={
+				<Suspense fallback={<div>Loading...</div>}>
+					<SchedulesCreate />
+				</Suspense>}  />
+            <Route path="/League/Schedule/Update" element={
+				<Suspense fallback={<div>Loading...</div>}>
+					<SchedulesUpdate />
+				</Suspense>}  />
 
-            <Route path="/League/Teams" element={<Teams />} />
-            <Route path="/League/Teams/Delete" element={<TeamsDelete />} />
-            <Route path="/League/Teams/Create" element={<TeamsCreate />} />
-            <Route path="/League/Teams/Update" element={<TeamsUpdate />} />
-            <Route path="/League/Teams/Report" element={<TeamReport />} />
+            <Route path="/League/Teams" element={
+				<Suspense fallback={<div>Loading...</div>}>
+					<Teams />
+				</Suspense>}  />
+            <Route path="/League/Teams/Delete" element={
+				<Suspense fallback={<div>Loading...</div>}>
+					<TeamsDelete />
+				</Suspense>}  />
+            <Route path="/League/Teams/Create" element={
+				<Suspense fallback={<div>Loading...</div>}>
+					<TeamsCreate />
+				</Suspense>}  />
+            <Route path="/League/Teams/Update" element={
+				<Suspense fallback={<div>Loading...</div>}>
+					<TeamsUpdate />
+				</Suspense>}  />
+            <Route path="/League/Teams/Report" element={
+				<Suspense fallback={<div>Loading...</div>}>
+					<TeamReport />
+				</Suspense>}  />
 
             <Route path="/League/Matches" element={<Matches />} />
             <Route path="/League/Matches/Update" element={<MatchUpdate />} />
@@ -141,9 +224,18 @@ function RouteMenu() {
             <Route path="/About" element={<About />} />
             <Route path="/Logoff" element={<Logoff />} />
             <Route path="/Login" element={<Login />} />
-            <Route path="/UserUpdatePassword" element={<UserUpdatePassword />} />
-            <Route path="/UpdateRecoverPassword" element={<UpdateRecoverPassword />} />
-            <Route path="/RecoverPasswordRequest" element={<RecoverPasswordRequest />} />
+            <Route path="/UserUpdatePassword" element={
+				<Suspense fallback={<div>Loading...</div>}>
+					<UserUpdatePassword />
+				</Suspense>}  />
+            <Route path="/UpdateRecoverPassword" element={
+				<Suspense fallback={<div>Loading...</div>}>
+					<UpdateRecoverPassword />
+				</Suspense>}  />
+            <Route path="/RecoverPasswordRequest" element={
+				<Suspense fallback={<div>Loading...</div>}>
+					<RecoverPasswordRequest />
+				</Suspense>}  />
             <Route path='*' element={<NotLogin />} />
             <Route path="/Welcome" element={<Welcome/>} />
 
