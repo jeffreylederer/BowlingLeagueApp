@@ -77,6 +77,7 @@ function GameList() {
         <Layout>
             <h3>Playoff games in {league.leagueName} league</h3>
             <div className="toLeft">
+                <a href={`/league/playoffs/GameReport?id=${weekid}`} target='blank' >This week's schedule</a><br />
                 <a href={`/league/playoffs/PlayoffResults?id=${weekid}`} target='blank' >This week's results</a><br />
                 <a href={`/league/matches/ScoreCard?id=${weekid}`} target='blank' >This week's score card</a>
             </div>
