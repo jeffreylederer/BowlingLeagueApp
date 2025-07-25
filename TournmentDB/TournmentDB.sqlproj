@@ -113,5 +113,10 @@
     <Build Include="dbo\Stored Procedures\OneTeam.sql" />
     <Build Include="dbo\Stored Procedures\NotOnTeam.sql" />
     <Build Include="dbo\Stored Procedures\OneMatchWeek.sql" />
+    <Build Include="dbo\Views\PlayoffGamesView.sql" />
+    <Build Include="dbo\Views\AllTeamsWithNamesView.sql" />
+    <Build Include="dbo\Stored Procedures\PlayoffGames.sql" />
+    <Build Include="dbo\Stored Procedures\GameSchedule.sql" />
+    <Build Include="dbo\Stored Procedures\AllTeamsWithNames.sql" />
   </ItemGroup>
 </Project>
