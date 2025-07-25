@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import MatchFormData from "@pages/League/Matches/MatchFormData.tsx";
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import Layout from '@layouts/Layout.tsx';
@@ -9,6 +9,9 @@ import UserClass from '@components/UserClass.tsx';
 import { useQuery } from '@tanstack/react-query';
 import { Spinner } from "flowbite-react";
 import fetchData from '@components/fetchData.tsx';
+import DisplayTable from '@components/DisplayTable';
+import { ColumnDef } from '@tanstack/react-table';
+
 
 
 
@@ -23,7 +26,69 @@ function GameList() {
     const [errorMsg, setErrorMsg] = useState('');
     const navigate = useNavigate();
 
+    const columns = useMemo<ColumnDef<MatchFormData, unknown>[]>(() => [
+        {
+            header: 'Exchange Rink',
+            id: 'actions',
+            cell: ({ row }) => (
+                <button hidden={row.original.rink == 0} onClick={()=>Reorder(row.original.id)} style={{ backgroundColor: 'white' }}><img src={uparrow} /></button>
+            ),
+            meta: { hidden: admin }
+        },
+        {
+            header: 'Game Date',
+            cell: ({ row }) => {
+                return <span>{convertDate(row.original.gameDate)}</span>
+            }
+        },
+        {
+            header: 'Rink',
+            cell: ({ row }) => {
+                return <div style={{ textAlign: 'center' }} >{row.original.rink + 1}</div>
+            }
+        },
+        {
+            header: 'Team 1',
+            cell: ({ row }) => {
+                return <span style={{ color: row.original.wheelchair1, textAlign: "left" }} >
+                    {row.original.team1No} ({row.original.team1})</span>
+            }
+        },
+        {
+            header: 'Team 2',
+            cell: ({ row }) => {
+                return <span style={{ color: row.original.wheelchair2, textAlign: "left" }} >
+                    {row.original.team2No} ({row.original.team2})</span>
+            }
+        },
+        {
+            header: 'Team 1 Score',
+            cell: ({ row }) => {
+                return <div style={{ textAlign: 'center' }} >{row.original.forFeitId != 0 ? '' : row.original.team1Score}</div>
+            }
+        },
+        {
+            header: 'Team 2 Score',
+            cell: ({ row }) => {
+                return <div style={{ textAlign: 'center' }} >{row.original.forFeitId != 0 ? '' : row.original.team2Score}</div>
+            }
+        },
+        {
+            header: 'Team Forfeiting',
+            cell: ({ row }) => {
+                return <div style={{ textAlign: 'center' }} >{row.original.forFeitId == 0 ? '' : row.original.forFeitId}</div>
 
+            }
+        },
+        {
+            header: '',
+            id: 'actions',
+            cell: ({ row }) => (
+                <Link to="/League/Playoffs/PlayoffScoring" state={row.original.id.toString()}>Score</Link>
+            ),
+            meta: { hidden: allowed }
+        },
+    ], []);
    
 
     // Fetch matches for selected week
@@ -34,10 +99,8 @@ function GameList() {
     });
 
    
-    async function Reorder(event: React.MouseEvent<HTMLButtonElement>) {
-        event.preventDefault();
-        const button: HTMLButtonElement = event.currentTarget;
-        const id: string = button.name;
+    async function Reorder(id: number) {
+       
         try {
             const response = await fetch(`/api/Matches/Reorder${id}`);
             if (!response.ok) {
@@ -72,72 +135,27 @@ function GameList() {
     }
 
       
+        return (
+            <Layout>
+                <h3>Playoff games in {league.leagueName} league</h3>
+                <div className="toLeft">
+                    <a href={`/league/playoffs/GameReport?id=${weekid}`} target='blank' >This week's schedule</a><br />
+                    <a href={`/league/playoffs/PlayoffResults?id=${weekid}`} target='blank' >This week's results</a><br />
+                    <a href={`/league/matches/ScoreCard?id=${weekid}`} target='blank' >This week's score card</a>
+                </div>
 
-    return (
-        <Layout>
-            <h3>Playoff games in {league.leagueName} league</h3>
-            <div className="toLeft">
-                <a href={`/league/playoffs/GameReport?id=${weekid}`} target='blank' >This week's schedule</a><br />
-                <a href={`/league/playoffs/PlayoffResults?id=${weekid}`} target='blank' >This week's results</a><br />
-                <a href={`/league/matches/ScoreCard?id=${weekid}`} target='blank' >This week's score card</a>
-            </div>
-
-            <div hidden={match == undefined}>
-                <table className="table table-striped" aria-labelledby="tableLabel">
-                    <thead>
-                        <tr>
-                            <th hidden={admin}>
-                                Exchange Rink
-                            </th>
-                            <th>
-                                Game Date
-                            </th>
-                            <th>
-                                Rink
-                            </th>
-                            <th style={{ textAlign: "center" }}>
-                                Team 1
-                            </th>
-                            <th style={{ textAlign: "center" }}>
-                                Team 2
-                            </th>
-                            <th >
-                                Team 1 Score
-                            </th>
-                            <th >
-                                Team 2 Score
-                            </th>
-                            <th >
-                                Team Forfeiting
-                            </th>
-                            <th hidden={allowed}></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {match?.map(item =>
-                            <tr key={item.id}>
-                                <td hidden={admin}><button hidden={item.rink == 0} onClick={Reorder} name={item.id.toString()} style={{ backgroundColor: 'white' }}><img src={uparrow} /></button></td>
-                                <td>{convertDate(item.gameDate)}</td>
-                                <td>{item.rink + 1}</td>
-                                <td style={{ color: item.wheelchair1, textAlign: "left" }} >
-                                    {item.team1No} ({item.team1})</td>
-                                <td style={{ color: item.wheelchair2, textAlign: "left" }} >
-                                    {item.team2No} ({item.team2})</td>
-                                <td style={{ textAlign: 'center' }} >{item.forFeitId != 0 ? '' : item.team1Score}</td>
-                                <td style={{ textAlign: 'center' }} >{item.forFeitId != 0 ? '' : item.team2Score}</td>
-                                <td style={{ textAlign: 'center' }} >{item.forFeitId == 0 ? '' : item.forFeitId}</td>
-                                <td hidden={allowed} ><Link to="/League/Playoffs/PlayoffScoring" state={item.id.toString()}>Score</Link></td>
-                            </tr>
-                        )}
-                    </tbody>
-                </table>
-                <p style={{ color: 'red', textAlign: 'left' }} >Teams with wheel chair members are in red</p>
-            </div>
-            <button onClick={() => navigate("/league/playoffs")} >Back to list</button> 
-            
-            <p style={{ textAlign: "center" }}>{errorMsg}</p>
-        </Layout>
-    );
+                
+               
+                
+                <div hidden={match == undefined}>
+                    <DisplayTable<MatchFormData> data={match} columns={columns} />
+                    <p style={{ color: 'red', textAlign: 'left' }} >Teams with wheel chair members are in red</p>
+                </div>
+                <button onClick={() => navigate("/league/playoffs")} >Back to list</button>
+                <p style={{ textAlign: "center" }}>{errorMsg}</p>
+            </Layout>
+        );
+    
 }
 
 export default GameList;

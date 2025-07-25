@@ -9,6 +9,7 @@ import { ReturnButton } from '@components/Buttons.tsx';
 import Layout from '@layouts/Layout.tsx';
 import convertDate from '@components/convertDate.tsx';
 import { useQuery, useMutation } from '@tanstack/react-query';
+import SubmitButton from '@components/Buttons';
 
 
 function PlayoffScoring ()  {
@@ -154,7 +155,7 @@ function PlayoffScoring ()  {
                         </tr>
                         <tr>
                             <td colSpan={2} >
-                                <ReturnButton Back={Goback} disabled={mutation.isPending} />
+                                <SubmitButton disabled={mutation.isPending}/>
                             </td>
                         </tr>
                         <tr>
