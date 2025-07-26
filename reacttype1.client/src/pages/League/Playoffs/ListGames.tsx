@@ -93,7 +93,7 @@ function GameList() {
 
     // Fetch matches for selected week
     const { data: match, isLoading: isLoadingMatch, isError: isErrorMatch, error: errorMatch, refetch } = useQuery<MatchFormData[]>({
-        queryKey: ['matches', weekid],
+        queryKey: ['playoffs', weekid],
         queryFn: () => fetchData<MatchFormData[]>(`/api/Matches/${weekid}`),
         enabled: !!weekid, // Only run if weekid is truthy
     });
@@ -134,7 +134,24 @@ function GameList() {
         );
     }
 
-      
+    if (!match || match.length === 0)
+        return (
+            <Layout>
+                <h3>Playoff games in {league.leagueName} league</h3>
+                <div className="toLeft">
+                    <a href={`/league/playoffs/GameReport?id=${weekid}`} target='blank' >This week's schedule</a><br />
+                    <a href={`/league/playoffs/PlayoffResults?id=${weekid}`} target='blank' >This week's results</a><br />
+                    <a href={`/league/matches/ScoreCard?id=${weekid}`} target='blank' >This week's score card</a>
+                </div>
+
+
+
+
+                
+                <button onClick={() => navigate("/league/playoffs")} >Back to list</button>
+                <p style={{ textAlign: "center" }}>{errorMsg}</p>
+            </Layout>
+        );
         return (
             <Layout>
                 <h3>Playoff games in {league.leagueName} league</h3>
@@ -147,10 +164,10 @@ function GameList() {
                 
                
                 
-                <div hidden={match == undefined}>
+  
                     <DisplayTable<MatchFormData> data={match} columns={columns} />
                     <p style={{ color: 'red', textAlign: 'left' }} >Teams with wheel chair members are in red</p>
-                </div>
+             
                 <button onClick={() => navigate("/league/playoffs")} >Back to list</button>
                 <p style={{ textAlign: "center" }}>{errorMsg}</p>
             </Layout>

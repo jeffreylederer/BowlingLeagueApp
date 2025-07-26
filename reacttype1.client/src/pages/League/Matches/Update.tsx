@@ -8,7 +8,7 @@ import MatchFormData from "./MatchFormData.tsx";
 import { ReturnButton } from '@components/Buttons.tsx';
 import Layout from '@layouts/Layout.tsx';
 import convertDate from '@components/convertDate.tsx';
-import { useQuery, useMutation } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 
 const MatchUpdate = () => {
@@ -17,6 +17,7 @@ const MatchUpdate = () => {
     const [hidden, setHidden] = useState<boolean>(false);
     const [errorMsg, setErrorMsg] = useState<string>('');
     const navigate = useNavigate();
+    const queryClient = useQueryClient();
     
 
     // Fetch match data from API
@@ -51,6 +52,7 @@ const MatchUpdate = () => {
         },
         onSuccess: () => {
             const url: string = match ? `/League/Matches?id=${match.weekId}` : "/League/Matches";
+            queryClient.invalidateQueries({ queryKey: ['matches', match?.weekId] });
             navigate(url);
         },
         onError: (error) => {

@@ -5,10 +5,9 @@ import { UpdateFormData, UpdateFormDataSchema } from "@pages/League/Matches/Upda
 import { zodResolver } from '@hookform/resolvers/zod';
 import { TextInput, Spinner } from "flowbite-react";
 import MatchFormData from "@pages/League/Matches/MatchFormData.tsx";
-import { ReturnButton } from '@components/Buttons.tsx';
 import Layout from '@layouts/Layout.tsx';
 import convertDate from '@components/convertDate.tsx';
-import { useQuery, useMutation } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import SubmitButton from '@components/Buttons';
 
 
@@ -18,6 +17,7 @@ function PlayoffScoring ()  {
     const [hidden, setHidden] = useState<boolean>(false);
     const [errorMsg, setErrorMsg] = useState<string>('');
     const navigate = useNavigate();
+    const queryClient = useQueryClient();
 
 
     // Fetch match data from API
@@ -51,6 +51,7 @@ function PlayoffScoring ()  {
             }
         },
         onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['playoffs', match?.weekId] });
             navigate(`/League/Playoffs/ListGames?id=${match?.weekId}`);
 
         },
@@ -72,11 +73,6 @@ function PlayoffScoring ()  {
 
 
     const onSubmit: SubmitHandler<UpdateFormData> = (data) => mutation.mutate(data);
-
-    function Goback() {
-        const url: string =  `/League/Playoffs/GamesList?id=${match?.weekId}` ;
-        navigate(url);
-    }
 
     if (isLoading) {
         return (

@@ -188,6 +188,31 @@ function Matches() {
         }
     }
 
+    if (match == undefined || match.length === 0) {
+        return (
+            <Layout>
+                <h3>Games in {league.leagueName} league</h3>
+                <div className="toLeft">
+                    <p className="toLeft">Date: <select onChange={selectChange} value={weekid}>
+                        <option value="0" key="0" disabled>Select date</option>
+                        {data?.map(item =>
+                            <option key={item.id} value={item.id.toString()}>{convertDate(item.gameDate)}</option>
+                        )}
+                    </select><br />
+                        <a href={standingUrl} target='blank' hidden={weekid == 0}>This week's standings report</a><br />
+                        <a href={scoreUrl} target='blank' hidden={weekid == 0}>This week's score card</a>
+                    </p>
+                </div>
+                
+                <div hidden={match != undefined}>
+                    <p>Select a game date</p>
+                </div>
+                <p style={{ textAlign: "center" }}>{errorMsg}</p>
+            </Layout>
+
+        )
+    }
+
     return (
         <Layout>
             <h3>Games in {league.leagueName} league</h3>
