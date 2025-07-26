@@ -196,9 +196,8 @@ function Matches() {
                         {data?.map(item =>
                             <option key={item.id} value={item.id.toString()}>{convertDate(item.gameDate)}</option>
                         )}
-                    </select><br />
-                        <a href={`/League/Matches/Standings?id=${weekid}`} target='blank' hidden={weekid == 0}>This week's standings report</a><br />
-                        <a href={`/League/Matches/Scorecard?id=${weekid}`} target='blank' hidden={weekid == 0}>This week's score card</a>
+                    </select>
+                        
                     </p>
                 </div>
                 
