@@ -161,12 +161,8 @@ function GameList() {
                     <a href={`/league/matches/ScoreCard?id=${weekid}`} target='blank' >This week's score card</a>
                 </div>
 
-                
-               
-                
-  
-                    <DisplayTable<MatchFormData> data={match} columns={columns} />
-                    <p style={{ color: 'red', textAlign: 'left' }} >Teams with wheel chair members are in red</p>
+                <DisplayTable<MatchFormData> data={match} columns={columns} />
+                <p style={{ color: 'red', textAlign: 'left' }} >Teams with wheel chair members are in red</p>
              
                 <button onClick={() => navigate("/league/playoffs")} >Back to list</button>
                 <p style={{ textAlign: "center" }}>{errorMsg}</p>

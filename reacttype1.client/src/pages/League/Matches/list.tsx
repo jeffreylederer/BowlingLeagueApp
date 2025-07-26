@@ -200,10 +200,8 @@ function Matches() {
                         
                     </p>
                 </div>
+               <p>Select a game date</p>
                 
-                <div hidden={match != undefined}>
-                    <p>Select a game date</p>
-                </div>
                 <p style={{ textAlign: "center" }}>{errorMsg}</p>
             </Layout>
 
@@ -224,13 +222,9 @@ function Matches() {
                     <a href={`/League/Matches/Scorecard?id=${weekid}`} target='blank' hidden={weekid == 0}>This week's score card</a>
                 </p>
             </div>
-            <div hidden={match == undefined}>
-                <DisplayTable<MatchFormData> data={match} columns={columns} />
-            <p style={{ color: 'red', textAlign: 'left' }} hidden={weekid == 0}>Teams with wheel chair members are in red</p>
-            </div>
-            <div hidden={match != undefined}>
-            <p>Select a game date</p>
-            </div>
+            
+            <DisplayTable<MatchFormData> data={match} columns={columns} />
+            <p style={{ color: 'red', textAlign: 'left' }} hidden={weekid == 0}>Teams with wheel chair members are in red</p>          
             <p style={{ textAlign: "center" }}>{errorMsg}</p>
         </Layout>
     );
