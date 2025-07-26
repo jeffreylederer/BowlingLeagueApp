@@ -8,7 +8,7 @@ function TeamReport() {
     const league = new LeagueClass();
 
     const { data, isLoading, isError, error } = useQuery<string>({
-        queryKey: ['ScheduleReport-pdf', league.id],
+        queryKey: ['TeamsReport-pdf', league.id],
         queryFn: () => fetchText(`/api/Teams/TeamReport/${league.id}`),
         enabled: !!league.id
     },

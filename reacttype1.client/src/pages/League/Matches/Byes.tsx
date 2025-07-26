@@ -9,7 +9,7 @@ function Byes() {
     const league = new LeagueClass();
 
     const { data, isLoading, isError, error } = useQuery<string>({
-        queryKey: ['ScheduleReport-pdf', league.id],
+        queryKey: ['ByesReport-pdf', league.id],
         queryFn: () => fetchText(`/api/Matches/Byes/${league.id}`),
         enabled: !!league.id
     },

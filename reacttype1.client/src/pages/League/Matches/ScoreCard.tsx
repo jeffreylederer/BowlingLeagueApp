@@ -11,7 +11,7 @@ function ScoreCard() {
     const id: string = location.search.substring(4);
 
     const { data, isLoading, isError, error } = useQuery<string>({
-        queryKey: ['ScheduleReport-pdf', id],
+        queryKey: ['ScoreCardReport-pdf', id],
         queryFn: () => fetchText(`/api/Matches/ScoreCard/${id}`),
         enabled: !!id
     },

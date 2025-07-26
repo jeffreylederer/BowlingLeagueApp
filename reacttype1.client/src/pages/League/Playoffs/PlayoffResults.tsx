@@ -11,7 +11,7 @@ function PlayoffResults() {
 
 
     const { data, isLoading, isError, error } = useQuery<string>({
-        queryKey: ['ScheduleReport-pdf', league.id],
+        queryKey: ['PlayoffResultsReport-pdf', league.id],
         queryFn: () => fetchText(`/api/Playoffs/PlayoffResults/${weekid}`),
         enabled: !!league.id
     },
