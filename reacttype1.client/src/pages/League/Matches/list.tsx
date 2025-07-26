@@ -24,9 +24,7 @@ function Matches() {
     const admin: boolean = (permission == "SiteAdmin" || permission == "Admin") ? false : true;
     const location = useLocation();
     const id: string = location.search.substring(4);
-    const [weekid, setWeekid] = useState(+id);
-    const standingUrl: string = "/League/Matches/Standings?id=".concat(weekid.toString());
-    const scoreUrl: string = "/league/matches/ScoreCard?id=".concat(weekid.toString());
+    const [weekid, setWeekid] = useState(+id);  
     const [errorMsg, setErrorMsg] = useState('');
 
     // Fetch schedule (weeks)
@@ -178,7 +176,7 @@ function Matches() {
                                 <option key={item.id} value={item.id.toString()}>{convertDate(item.gameDate)}</option>
                             )}
                         </select><br />
-                            <a href={standingUrl} target='blank' hidden={weekid == 0}>Standings report</a>
+                            <a href={`/League/Matches/Standings?id=${weekid}`} target='blank' hidden={weekid == 0}>Standings report</a>
                            
                         </p>
                     </div>
@@ -199,8 +197,8 @@ function Matches() {
                             <option key={item.id} value={item.id.toString()}>{convertDate(item.gameDate)}</option>
                         )}
                     </select><br />
-                        <a href={standingUrl} target='blank' hidden={weekid == 0}>This week's standings report</a><br />
-                        <a href={scoreUrl} target='blank' hidden={weekid == 0}>This week's score card</a>
+                        <a href={`/League/Matches/Standings?id=${weekid}`} target='blank' hidden={weekid == 0}>This week's standings report</a><br />
+                        <a href={`/League/Matches/Scorecard?id=${weekid}`} target='blank' hidden={weekid == 0}>This week's score card</a>
                     </p>
                 </div>
                 
@@ -223,8 +221,8 @@ function Matches() {
                         <option key={item.id} value={item.id.toString()}>{convertDate(item.gameDate)}</option>
                     )}
                 </select><br />
-                    <a href={standingUrl} target='blank' hidden={weekid == 0}>This week's standings report</a><br />
-                    <a href={scoreUrl} target='blank' hidden={weekid == 0}>This week's score card</a>
+                    <a href={`/League/Matches/Standings?id=${weekid}`} target='blank' hidden={weekid == 0}>This week's standings report</a><br />
+                    <a href={`/League/Matches/Scorecard?id=${weekid}`} target='blank' hidden={weekid == 0}>This week's score card</a>
                 </p>
             </div>
             <div hidden={match == undefined}>
