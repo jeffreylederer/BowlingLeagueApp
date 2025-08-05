@@ -6,7 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import LeagueClass from '@components/LeagueClass.tsx';
 import { Membership } from "./Membership.tsx";
 import Layout from '@layouts/Layout.tsx';
-import SubmitButton from '@components/Buttons.tsx';
+import SubmitButton from '@components/SubmitButton.tsx'
 import { TeamType } from './TeamType.ts';
 import { GetCount } from '@components/CountMatches.tsx';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';

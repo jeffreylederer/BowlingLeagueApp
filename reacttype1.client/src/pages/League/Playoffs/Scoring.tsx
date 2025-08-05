@@ -8,7 +8,7 @@ import MatchFormData from "@pages/League/Matches/MatchFormData.tsx";
 import Layout from '@layouts/Layout.tsx';
 import convertDate from '@components/convertDate.tsx';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import SubmitButton from '@components/Buttons';
+import SubmitButton from '@components/SubmitButton.tsx';
 
 
 function PlayoffScoring ()  {

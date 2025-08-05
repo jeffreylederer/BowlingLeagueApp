@@ -4,7 +4,7 @@ import { FormData, FormDataSchema } from "./FormData.tsx";
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Checkbox, TextInput } from "flowbite-react";
 import LeagueClass from '@components/LeagueClass.tsx';;
-import SubmitButton from '@components/Buttons.tsx';
+import SubmitButton from '@components/SubmitButton.tsx'
 import Layout from '@layouts/Layout.tsx';
 import { UpdateFormData } from "./UpdateFormData.tsx";
 import { useState } from 'react';

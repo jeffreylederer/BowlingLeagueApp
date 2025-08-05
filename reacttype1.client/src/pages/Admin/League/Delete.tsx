@@ -1,7 +1,7 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useState } from 'react';
 import { FormData } from "./FormData.tsx";
-import { DeleteButton } from '@components/Buttons.tsx';
+import DeleteButton from '@components/DeleteButton.tsx'
 import Layout from "@layouts/Layout.tsx";
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Spinner } from "flowbite-react";

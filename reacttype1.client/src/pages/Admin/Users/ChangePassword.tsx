@@ -4,7 +4,7 @@ import { ChangePasswordType, ChangePasswordTypeSchema, PasswordType } from "./Ch
 import { zodResolver } from '@hookform/resolvers/zod';
 import { TextInput } from "flowbite-react";
 import Layout from "@layouts/Layout.tsx";
-import SubmitButton from '@components/Buttons.tsx';
+import SubmitButton from '@components/SubmitButton.tsx'
 import { useState } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { Spinner } from "flowbite-react";

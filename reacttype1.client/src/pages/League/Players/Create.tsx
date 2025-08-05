@@ -5,7 +5,7 @@ import { UpdateFormData } from "../../Membership/UpdateFormData.tsx";
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
 import LeagueClass from '@components/LeagueClass.tsx';
-import SubmitButton from '@components/Buttons.tsx';
+import SubmitButton from '@components/SubmitButton.tsx'
 import Layout from '@layouts/Layout.tsx';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Spinner } from "flowbite-react";

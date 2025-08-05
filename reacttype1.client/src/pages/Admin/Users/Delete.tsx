@@ -2,7 +2,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useState } from 'react';
 import { DetailsType } from "./DetailsType.tsx";
 import Layout from "@layouts/Layout.tsx";
-import { DeleteButton } from '@components/Buttons.tsx';
+import DeleteButton from '@components/DeleteButton.tsx'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Spinner } from "flowbite-react";
 import fetchData from '@components/fetchData.tsx';

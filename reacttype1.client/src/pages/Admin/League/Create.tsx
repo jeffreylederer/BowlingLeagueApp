@@ -3,7 +3,7 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import { FormData, FormDataSchema } from "./FormData.tsx";
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Checkbox, TextInput } from "flowbite-react";
-import SubmitButton from '@components/Buttons.tsx';
+import SubmitButton from '@components/SubmitButton.tsx'
 import Layout from "@layouts/Layout.tsx";
 import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';

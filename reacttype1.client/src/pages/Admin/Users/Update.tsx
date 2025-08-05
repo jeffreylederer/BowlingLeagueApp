@@ -4,7 +4,7 @@ import { UpdateFormData, UpdateFormDataSchema } from "./UpdateFormData.tsx";
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Checkbox, TextInput, Select, Spinner } from "flowbite-react";
 import Layout from "@layouts/Layout.tsx";
-import SubmitButton from '@components/Buttons.tsx';
+import SubmitButton from '@components/SubmitButton.tsx'
 import { PasswordType } from './ChangePasswordType.tsx';
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';

@@ -4,7 +4,7 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import { UpdateFormData } from "./UpdateFormData.tsx";
 import { Checkbox, TextInput } from "flowbite-react";
 import LeagueClass from '@components/LeagueClass.tsx';
-import SubmitButton from '@components/Buttons.tsx';
+import SubmitButton from '@components/SubmitButton.tsx'
 import Layout from '@layouts/Layout.tsx';
 import { GetCount } from '@components/CountMatches.tsx';
 import { useMutation, useQueryClient } from '@tanstack/react-query';

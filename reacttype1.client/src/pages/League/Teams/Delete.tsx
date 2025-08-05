@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import LeagueClass from '@components/LeagueClass.tsx';
 import { TeamType } from "./TeamType.ts";
-import { DeleteButton } from '@components/Buttons.tsx';
+import DeleteButton from '@components/DeleteButton.tsx'
 import { Spinner } from "flowbite-react";
 import fetchData from '@components/fetchData.tsx';
 

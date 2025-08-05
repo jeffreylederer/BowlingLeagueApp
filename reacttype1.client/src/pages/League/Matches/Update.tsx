@@ -5,7 +5,7 @@ import { UpdateFormData, UpdateFormDataSchema } from "./UpdateFormData.tsx";
 import { zodResolver } from '@hookform/resolvers/zod';
 import { TextInput, Spinner } from "flowbite-react";
 import MatchFormData from "./MatchFormData.tsx";
-import { ReturnButton } from '@components/Buttons.tsx';
+import ReturnButton from '@components/ReturnButton.tsx';
 import Layout from '@layouts/Layout.tsx';
 import convertDate from '@components/convertDate.tsx';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
