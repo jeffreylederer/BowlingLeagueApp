@@ -54,7 +54,7 @@ A clever thing I did was to call Stored Prcoedures on stored procedures with joi
          .ToListAsync();
 
 # New Features
-I have added new features to both the the client and server projects.
+I have added new features to both the the client and server projects. I have also added storybook stories for some components and pages.
 
 ## React
 ### Absolute or Alias paths 
