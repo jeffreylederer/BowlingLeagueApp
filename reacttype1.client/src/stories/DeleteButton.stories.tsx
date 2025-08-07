@@ -19,7 +19,7 @@ const meta: Meta<typeof DeleteButton> = {
 };
 
 
-export const Disabked: Story = {
+export const Disabled: Story = {
     args: {
         DeleteItem: fn,
         disabled: true,
