@@ -19,13 +19,13 @@ const meta: Meta<typeof SubmitButton> = {
 
 export const Enabled: Story = {
     args: {
-        disabled: false,
+        disabled: true,
     },
 };
 
 export const Disabled: Story = {
     args: {
-        disabled: true,
+        disabled: false,
     },
 };
 
