@@ -60,6 +60,7 @@ namespace ReactType1.Server.Code
                 list.Add(new Standing()
                 {
                     Team = team.TeamNo,
+                    TeamId = team.Id,
                     Wins = 0,
                     Loses = 0,
                     TotalScore = 0,
@@ -78,14 +79,10 @@ namespace ReactType1.Server.Code
                 //cancelled weeks do not count
                 if (week.Cancelled)
                     continue;
-                //var total = 0;
-                var numMatches = 0;
-                var bye = false;
-                bool forfeit = false;
 
-                foreach (var match in db.Matches.Where(x => x.WeekId == week.Id).Where(x=>x.TeamNo1Navigation.DivisionId == DivisionId).ToList())
+                foreach (var match in db.Matches.Where(x => x.WeekId == week.Id).Where(x => x.TeamNo1Navigation.DivisionId == DivisionId).ToList())
                 {
-                    
+
                     GetTeamView? teamView = db.GetTeamViews
                         .FromSql($"Exec GetTeam {match.Id}")
                         .AsEnumerable()
@@ -126,7 +123,6 @@ namespace ReactType1.Server.Code
                                 //total += match.Team1Score;
                             }
                         }
-                        numMatches++;
                     }
                     //team 1 wins
                     else if (match.Team1Score > match.Team2Score && match.Rink != -1 && match.ForFeitId == 0)
@@ -148,7 +144,6 @@ namespace ReactType1.Server.Code
                                 loser.TotalScore += match.Team2Score;
                             }
                         }
-                        numMatches++;
                     }
                     //team 2 wins
                     else if (match.Rink != -1 && match.ForFeitId == 0)
@@ -170,61 +165,42 @@ namespace ReactType1.Server.Code
                                 loser.TotalScore += match.Team1Score;
                             }
                         }
-                        numMatches++;
                     }
                     // one team forfeits
                     else if (match.Rink != -1 && match.ForFeitId > 0)
                     {
-                        var winner = list.Find(x => x.Team == (teamView?.Team == match.ForFeitId ? teamView?.Team1 : teamView?.Team));
-                        var loser = list.Find(x => x.Team == match.ForFeitId);
-                        forfeit = true;
-                        if (winner != null && loser != null)
+                        var team1 =list.Where(x=>x.TeamId==match.TeamNo1).FirstOrDefault();
+                        var team2 = list.Where(x => x.TeamId == match.TeamNo2).FirstOrDefault();
+                        if (team1?.Team == match.ForFeitId)
                         {
+                            var winner = team2;
+                            var loser = team1;
                             winner.Wins++;
                             loser.Loses++;
+                            winner.TotalScore += 14;
+                        }
+                        else 
+                        {
+                            var winner = team1;
+                            var loser = team2;
+                            winner.Wins++;
+                            loser.Loses++;
+                            winner.TotalScore += 14;
                         }
                     }
-                    //bye
-                    else
+                    if( match.Rink == -1 && match.ForFeitId == 0)
                     {
                         var winner = list.Find(x => x.Team == teamView?.Team);
                         if (winner != null)
                         {
+                            winner.Wins++;
                             winner.Byes++;
+                            winner.TotalScore += 14;
                         }
-                        bye = true;
                     }
                 }
 
-                // for byes or forfeit (the team that did not forfeit), the team gets the average score of all winning games that week and a win
-                if (bye || forfeit)
-                {
-
-                    foreach (var match in db.Matches.Where(x => x.WeekId == week.Id).Where(x => x.TeamNo1Navigation.DivisionId == DivisionId).ToList())
-                    {
-                        
-                        GetTeamView? teamView = db.GetTeamViews
-                        .FromSql($"Exec GetTeam {match.Id}")
-                        .AsEnumerable()
-                        .FirstOrDefault();
-
-                        if (match.Rink != -1 && match.ForFeitId > 0)
-                        {
-                            var winner = list.Find(x => x.Team == (teamView?.Team == match.ForFeitId ? teamView?.Team1 : teamView?.Team));
-                            if (winner != null)
-                                winner.TotalScore += 14;
-                        }
-                        else if (match.Rink == -1 && match.ForFeitId != -1)
-                        {
-                            var winner = list.Find(x => x.Team == teamView?.Team);
-                            if (winner != null)
-                                winner.TotalScore += 14;
-                        }
-                    }
-
-                }
-               
-            }
+             }
 
             int place = 1;
             int nextplace = 1;
@@ -239,15 +215,10 @@ namespace ReactType1.Server.Code
             };
             foreach (var item in list)
             {
-                var points = item.Wins * league.WinPoints +
+                var points = (item.Wins - item.Byes) * league.WinPoints +
                                    item.Ties * league.TiePoints + item.Byes * league.ByePoints;
-                if (league.PointsCount)
-                    item.TotalPoints = points * 1000 + item.TotalScore;
-                else
-                {
-                    item.TotalPoints = points;
-                    item.TotalScore = points;
-                }
+                item.TotalPoints = points * 1000 + item.TotalScore;
+                
 
             }
             list.Sort((a, b) => (b.TotalPoints).CompareTo(a.TotalPoints));
@@ -310,6 +281,7 @@ namespace ReactType1.Server.Code
                 list.Add(new Standing()
                 {
                     Team = team.TeamNo,
+                    TeamId = team.Id,   
                     Wins = 0,
                     Loses = 0,
                     TotalScore = 0,
@@ -325,12 +297,8 @@ namespace ReactType1.Server.Code
             if (week != null) 
             {
 
-                //cancelled weeks do not count
+               
 
-                //var total = 0;
-                var numMatches = 0;
-                var bye = false;
-                bool forfeit = false;
                 foreach (var match in db.Matches.Where(x => x.WeekId == week.Id).ToList())
                 {
                     GetTeamView? teamView = db.GetTeamViews
@@ -372,7 +340,6 @@ namespace ReactType1.Server.Code
                                 //total += match.Team1Score;
                             }
                         }
-                        numMatches++;
                     }
                     //team 1 wins
                     else if (match.Team1Score > match.Team2Score && match.Rink != -1 && match.ForFeitId == 0)
@@ -394,7 +361,6 @@ namespace ReactType1.Server.Code
                                 loser.TotalScore += match.Team2Score;
                             }
                         }
-                        numMatches++;
                     }
                     //team 2 wins
                     else if (match.Rink != -1 && match.ForFeitId == 0)
@@ -416,60 +382,44 @@ namespace ReactType1.Server.Code
                                 loser.TotalScore += match.Team1Score;
                             }
                         }
-                        numMatches++;
                     }
                     // one team forfeits
                     else if (match.Rink != -1 && match.ForFeitId > 0)
                     {
-                        var winner = list.Find(x => x.Team == (teamView?.Team == match.ForFeitId ? teamView?.Team1 : teamView?.Team));
-                        var loser = list.Find(x => x.Team == match.ForFeitId);
-                        forfeit = true;
-                        if (winner != null && loser != null)
+                        var team1 = list.Where(x => x.TeamId == match.TeamNo1).FirstOrDefault();
+                        var team2 = list.Where(x => x.TeamId == match.TeamNo2).FirstOrDefault();
+                        if (team1?.Team == match.ForFeitId)
                         {
+                            var winner = team2;
+                            var loser = team1;
                             winner.Wins++;
                             loser.Loses++;
+                            if (winner != null)
+                                winner.TotalScore += 14;
                         }
+                        else
+                        {
+                            var winner = team1;
+                            var loser = team2;
+                            winner.Wins++;
+                            loser.Loses++;
+                            if (winner != null)
+                                winner.TotalScore += 14;
+                        }
+
                     }
                     //bye
-                    else
+                    else if(match.Rink == -1 && match.ForFeitId == 0)
                     {
                         var winner = list.Find(x => x.Team == teamView?.Team);
                         if (winner != null)
                         {
                             winner.Byes++;
+                            winner.TotalScore += 14;
                         }
-                        bye = true;
                     }
 
                 }
-
-                // for byes or forfeit (the team that did not forfeit), the team gets the average score of all winning games that week and a win
-                if (bye || forfeit)
-                {
-
-                    foreach (var match in db.Matches.Where(x => x.WeekId == week.Id).ToList()  )
-                    {
-                        GetTeamView? teamView = db.GetTeamViews
-                        .FromSql($"Exec GetTeam {match.Id}")
-                        .AsEnumerable()
-                        .FirstOrDefault();
-
-                        if (match.Rink != -1 && match.ForFeitId > 0)
-                        {
-                            var winner = list.Find(x => x.Team == (teamView?.Team == match.ForFeitId ? teamView?.Team1 : teamView?.Team));
-                            if (winner != null)
-                                winner.TotalScore += 14;
-                        }
-                        else if (match.Rink == -1 && match.ForFeitId != -1)
-                        {
-                            var winner = list.Find(x => x.Team == teamView?.Team);
-                            if(winner != null)
-                                winner.TotalScore += 14;
-                        }
-                    }
-                }
-
-
 
             }
 
@@ -486,15 +436,9 @@ namespace ReactType1.Server.Code
             };
             foreach (var item in list)
             {
-                var points = item.Wins * league.WinPoints +
-                                   item.Ties * league.TiePoints + item.Byes * league.ByePoints;
-                if (league.PointsCount)
-                    item.TotalPoints = points * 1000 + item.TotalScore;
-                else
-                {
-                    item.TotalPoints = points;
-                    item.TotalScore = points;
-                }
+               
+                item.TotalPoints = 1000*(item.Wins * league.WinPoints +
+                                   item.Ties * league.TiePoints + item.Byes * league.ByePoints) + item.TotalScore;
 
             }
 
@@ -518,6 +462,7 @@ namespace ReactType1.Server.Code
     public class Standing
     {
         public int Team { get; set; }
+        public int TeamId { get; set; } = 0;    
         public string Players { get; set; } = "";
         public int TotalScore { get; set; } = 0;
         public int Wins { get; set; } = 0;

@@ -1,5 +1,6 @@
-﻿using ReactType1.Server.Models;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+using ReactType1.Server.Models;
+using System.Linq;
 
 namespace ReactType1.Server.Code
 {
@@ -55,6 +56,7 @@ namespace ReactType1.Server.Code
                 list.Add(new StandingNoPoints()
                 {
                     Team = team.TeamNo,
+                    TeamId = team.Id,
                     Points = 0,
                     Players = players,
                     DivisionId = team.DivisionId
@@ -97,8 +99,7 @@ namespace ReactType1.Server.Code
                     else if (match.Team1Score > match.Team2Score && match.Rink != -1 && match.ForFeitId == 0)
                     {
                         var winner = list.Find(x => x.Team == teamView?.Team);
-                        var loser = list.Find(x => x.Team == teamView?.Team1);
-                        if (winner != null && loser != null)
+                        if (winner != null)
                         {
                             winner.Points += league.WinPoints;
                         }
@@ -108,8 +109,7 @@ namespace ReactType1.Server.Code
                     else if (match.Team1Score < match.Team2Score && match.Rink != -1 && match.ForFeitId == 0)
                     {
                         var winner = list.Find(x => x.Team == teamView?.Team1);
-                        var loser = list.Find(x => x.Team == teamView?.Team);
-                        if (winner != null && loser != null)
+                        if (winner != null)
                         {
                             winner.Points += league.WinPoints;
                         }
@@ -117,13 +117,21 @@ namespace ReactType1.Server.Code
                     // forfeit
                     else if(match.Rink != -1 && match.ForFeitId != 0)
                     {
-                        var winner = list.Find(x => x.Team != match.ForFeitId);
-                        var loser = list.Find(x => x.Team == match.ForFeitId);
-                        if (winner != null && loser != null)
+                        var team1 = list.Where(x => x.TeamId == match.TeamNo1).FirstOrDefault();
+                        var team2 = list.Where(x => x.TeamId == match.TeamNo2).FirstOrDefault();
+                        if (team1?.Team == match.ForFeitId)
                         {
-                            winner.Points += league.WinPoints;
-
+                            var winner = team2;
+                            if(winner != null)
+                                winner.Points += league.WinPoints;
                         }
+                        else 
+                        {
+                            var winner = team1;
+                            if (winner != null)
+                                winner.Points += league.WinPoints;
+                        }
+
                     }
                     // bye
                     else if (match.Rink == -1)
@@ -165,6 +173,7 @@ namespace ReactType1.Server.Code
     public class StandingNoPoints
     {
         public int Team { get; set; }
+        public int TeamId { get; set; } = 0;
         public string Players { get; set; } = "";
         public int Points { get; set; } = 0;
         public short DivisionId { get; set; } = 0;
