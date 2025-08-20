@@ -6,6 +6,7 @@ export const UpdateFormDataSchema = z.object({
     team1Score: z.coerce.number().min(0, "Team 1's score must be not negative"),
     team2Score: z.coerce.number().min(0, "Team 2's score must be not negative"),
     forfeit: z.coerce.number(),
+    version: z.coerce.number()
 
 });
 

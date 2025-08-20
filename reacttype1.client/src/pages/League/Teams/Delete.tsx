@@ -1,5 +1,4 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import LeagueClass from '@components/LeagueClass.tsx';
 import { TeamType } from "./TeamType.ts";
@@ -21,7 +20,7 @@ const deleteTeam = async (id: number) => {
 const TeamDelete = () => {
     const location = useLocation();
     const id: number = location.state;
-    const [errorMsg, setErrorMsg] = useState("");
+  
     const navigate = useNavigate();
     const queryClient = useQueryClient();
     const league = new LeagueClass();
@@ -35,9 +34,7 @@ const TeamDelete = () => {
             queryClient.invalidateQueries({ queryKey: ['teammembership', league.id] });
             navigate("/League/Teams");
         },
-        onError: (error: unknown) => {
-            setErrorMsg(error instanceof Error ? error.message : String(error));
-        }
+        
     });
 
     // Fetch the team data
@@ -99,11 +96,20 @@ const TeamDelete = () => {
                             <td colSpan={2} style={{ textAlign: "center" }}>
                                 <DeleteButton DeleteItem={deleteItem} disabled={mutation.isPending} />
                             </td>
+                            <td colSpan={2}>
+
+                                {mutation.isError && (
+                                    <p className="errorMessage">
+                                        {mutation.error instanceof Error
+                                            ? mutation.error.message
+                                            : "An error occurred while deleting team record."}
+                                    </p>
+                                )}
+                            </td>
                         </tr>
                     </tbody>
                 </table>
-                <p className="errorMessage">{errorMsg}</p>
-                {mutation.isError && <p className="errorMessage">{(mutation.error as Error).message}</p>}
+             
             </div>
         );
     }

@@ -5,7 +5,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Checkbox, TextInput } from "flowbite-react";
 import SubmitButton from '@components/SubmitButton.tsx'
 import Layout from "@layouts/Layout.tsx";
-import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 const createLeague = async (data: FormData) => {
@@ -30,7 +29,7 @@ const LeagueCreate = () => {
         resolver: zodResolver(FormDataSchema),
     });
 
-    const [errorMsg, setErrorMsg] = useState<string>('');
+
     const navigate = useNavigate();
     const queryClient = useQueryClient();
 
@@ -40,9 +39,7 @@ const LeagueCreate = () => {
             queryClient.invalidateQueries({ queryKey: ['leagueslist'] });
             navigate("/Admin/Leagues");
         },
-        onError: (error: unknown) => {
-            setErrorMsg(error instanceof Error ? error.message : String(error));
-        }
+        
     });
 
     const onSubmit: SubmitHandler<FormData> = (data) => {
@@ -129,8 +126,13 @@ const LeagueCreate = () => {
                         {errors.byePoints && <p className="errorMessage">{errors.byePoints.message}</p>}
                         {errors.startWeek && <p className="errorMessage">{errors.startWeek.message}</p>}
                         {errors.divisions && <p className="errorMessage">{errors.divisions.message}</p>}
-                        <p className="errorMessage">{errorMsg}</p>
-                        {mutation.isError && <p className="errorMessage">{(mutation.error as Error).message}</p>}
+                        {mutation.isError && (
+                            <p className="errorMessage">
+                                {mutation.error instanceof Error
+                                    ? mutation.error.message
+                                    : "An error occurred while creating the league record."}
+                            </p>
+                        )}
                         </td>
                     </tr>
                 </table>

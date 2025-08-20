@@ -1,5 +1,4 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import { useState } from 'react';
 import { DetailsType } from "./DetailsType.tsx";
 import Layout from "@layouts/Layout.tsx";
 import DeleteButton from '@components/DeleteButton.tsx'
@@ -11,8 +10,6 @@ const UsersDelete = () => {
     const location = useLocation();
     const id: number = location.state;
     const queryClient = useQueryClient();
-
-    const [errorMsg, setErrorMsg] = useState('');
 
     const navigate = useNavigate();
 
@@ -32,9 +29,7 @@ const UsersDelete = () => {
             queryClient.invalidateQueries({ queryKey: ['userslist'] });
             navigate("/Admin/Users");
         },
-        onError: (error) => {
-            setErrorMsg(error.message || String(error));
-        },
+        
     });
 
     function deleteItem() {
@@ -92,7 +87,13 @@ const UsersDelete = () => {
                     </td>
                 </tr>
             </table>
-            <p>{errorMsg}</p>
+            {mutation.isError && (
+                <p className="errorMessage">
+                    {mutation.error instanceof Error
+                        ? mutation.error.message
+                        : "An error occurred while deleting user record."}
+                </p>
+            )}
         </Layout>
     );
 };

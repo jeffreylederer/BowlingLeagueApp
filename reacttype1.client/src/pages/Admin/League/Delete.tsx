@@ -1,5 +1,4 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import { useState } from 'react';
 import { FormData } from "./FormData.tsx";
 import DeleteButton from '@components/DeleteButton.tsx'
 import Layout from "@layouts/Layout.tsx";
@@ -20,7 +19,6 @@ const deleteLeague = async (id: number) => {
 const LeagueDelete = () => {
     const location = useLocation();
     const id: number = location.state;
-    const [errorMsg, setErrorMsg] = useState('');
     const navigate = useNavigate();
     const queryClient = useQueryClient();
 
@@ -38,9 +36,7 @@ const LeagueDelete = () => {
             queryClient.invalidateQueries({ queryKey: ['leagueslist'] });
             navigate("/Admin/leagues");
         },
-        onError: (error: unknown) => {
-            setErrorMsg(error instanceof Error ? error.message : String(error));
-        }
+        
     });
 
     function DeleteItem() {
@@ -120,8 +116,13 @@ const LeagueDelete = () => {
                         </td>
                     </tr>
                 </table>
-                <p className="errorMessage">{errorMsg}</p>
-                {mutation.isError && <p className="errorMessage">{(mutation.error as Error).message}</p>}
+               {mutation.isError && (
+                    <p className="errorMessage">
+                        {mutation.error instanceof Error
+                            ? mutation.error.message
+                            : "An error occurred while deleting league record."}
+                    </p>
+                )}
             </Layout>
         );
     }

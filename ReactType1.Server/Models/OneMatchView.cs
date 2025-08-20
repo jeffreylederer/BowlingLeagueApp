@@ -30,4 +30,6 @@ public partial class OneMatchView
     public int Team2No { get; set; }
 
     public DateOnly GameDate { get; set; }
+
+    public int Version { get; set; }
 }

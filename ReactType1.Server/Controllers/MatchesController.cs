@@ -155,9 +155,14 @@ namespace ReactType1.Server.Controllers
             {
                 return NotFound();
             }
+            if(item.Version != match.Version)
+            {
+                return StatusCode(409, "Match has been updated by another user");
+            }
             match.Team1Score = item.Team1Score;
             match.Team2Score = item.Team2Score;
             match.ForFeitId = item.Forfeit;
+            match.Version = item.Version + 1;
 
 
             _context.Entry(match).State = EntityState.Modified;
@@ -371,7 +376,8 @@ namespace ReactType1.Server.Controllers
                     TeamNo2 = TeamNo2 == null ? 0 : TeamNo2.Id,
                     Team1Score = 0,
                     Team2Score = 0,
-                    ForFeitId = 0
+                    ForFeitId = 0,
+                    Version = 1
                 };
                 _context.Matches.Add(match);
             }
@@ -402,6 +408,7 @@ namespace ReactType1.Server.Controllers
         public int Team1Score { get; set; }
         public int Team2Score { get; set; }
         public int Forfeit { get; set; }
+        public int Version { get; set; }
 
     }
 

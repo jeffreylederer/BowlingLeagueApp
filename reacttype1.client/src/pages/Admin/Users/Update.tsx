@@ -6,11 +6,9 @@ import { Checkbox, TextInput, Select, Spinner } from "flowbite-react";
 import Layout from "@layouts/Layout.tsx";
 import SubmitButton from '@components/SubmitButton.tsx'
 import { PasswordType } from './ChangePasswordType.tsx';
-import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 const UsersUpdate = () => {
-    const [errorMsg, setErrorMsg] = useState<string>('');
     const location = useLocation();
     const id: number = location.state;
     const navigate = useNavigate();
@@ -57,9 +55,7 @@ const UsersUpdate = () => {
             queryClient.invalidateQueries({ queryKey: ['userslist'] });
             navigate("/Admin/Users");
         },
-        onError: (error) => {
-            setErrorMsg(error.message || String(error));
-        },
+        
     });
 
     const onSubmit: SubmitHandler<UpdateFormData> = (newData) => mutation.mutate(newData);
@@ -124,14 +120,13 @@ const UsersUpdate = () => {
                             </td>
                         </tr>
                         <tr>
-                            <td colSpan={1}>
+                            <td colSpan={2}>
                                 {errors.displayName && <p className="errorMessage">{errors.displayName.message}</p>}
                                 {mutation.isError && (
                                     <p className="errorMessage">
                                         {mutation.error instanceof Error ? mutation.error.message : "An error occurred while updating the user."}
                                     </p>
                                 )}
-                                <p className="errorMessage">{errorMsg}</p>
                             </td>
                         </tr>
                     </table>

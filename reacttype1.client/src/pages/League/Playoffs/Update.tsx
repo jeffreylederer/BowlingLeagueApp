@@ -14,7 +14,6 @@ function PlayoffsUpdate ()  {
     const league = new LeagueClass();
     const navigate = useNavigate();
     
-    const [errorMsg, setErrorMsg] = useState<string>('');
     const [matches, setMatches] = useState<PlayOffMatchType[] | undefined>(undefined);
     const queryClient = useQueryClient();
 
@@ -36,9 +35,7 @@ function PlayoffsUpdate ()  {
             queryClient.invalidateQueries({ queryKey: ['UpdateMatches', weekid] });
             navigate("/League/Playoffs");
         },
-        onError: (error: unknown) => {
-            setErrorMsg(error instanceof Error ? error.message : String(error));
-        }
+        
     });
 
     function SaveSelection() {
@@ -151,7 +148,13 @@ function PlayoffsUpdate ()  {
             ))}
             <button onClick={SaveSelection}>Save Selections</button>&nbsp;
             <button onClick={() => navigate(-1)}>Back to List</button>
-            <p>{errorMsg}</p>
+            {mutation.isError && (
+                <p className="errorMessage">
+                    {mutation.error instanceof Error
+                        ? mutation.error.message
+                        : "An error occurred while updating playoff record."}
+                </p>
+            )}
         </div>
     );
 };

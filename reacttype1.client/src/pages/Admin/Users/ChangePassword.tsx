@@ -5,7 +5,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { TextInput } from "flowbite-react";
 import Layout from "@layouts/Layout.tsx";
 import SubmitButton from '@components/SubmitButton.tsx'
-import { useState } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { Spinner } from "flowbite-react";
 
@@ -23,8 +22,7 @@ const ChangePassword = () => {
     });
 
     const navigate = useNavigate();
-    const [errorMsg, setErrorMsg] = useState<string>('');
-
+    
     // Fetch user data
     const { data, isLoading, isError, error } = useQuery<PasswordType>({
         queryKey: ['user', id],
@@ -54,9 +52,7 @@ const ChangePassword = () => {
         onSuccess: () => {
             navigate("/Admin/Users");
         },
-        onError: (error) => {
-            setErrorMsg(error.message || String(error));
-        },
+        
     });
 
     const onSubmit: SubmitHandler<ChangePasswordType> = (formData) => mutation.mutate(formData);
@@ -121,7 +117,6 @@ const ChangePassword = () => {
                                         {mutation.error instanceof Error ? mutation.error.message : "An error occurred while changing the password."}
                                     </p>
                                 )}
-                                <p className="errorMessage">{errorMsg}</p>
                             </td>
                         </tr>
                     </table>

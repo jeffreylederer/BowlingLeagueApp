@@ -7,7 +7,7 @@
     [LastLoggedIn] DATETIMEOFFSET (7) NULL,
     [SerialNumber] VARCHAR (450)      NOT NULL,
     [RoleId]       INT                CONSTRAINT [DF_User_RoleId] DEFAULT ((1)) NOT NULL,
-    CONSTRAINT [PK_User] PRIMARY KEY CLUSTERED ([id] ASC),
+    CONSTRAINT [PK_User] PRIMARY KEY CLUSTERED ([Username] ASC),
     CONSTRAINT [FK_User_Role] FOREIGN KEY ([RoleId]) REFERENCES [dbo].[Role] ([id])
 );
 

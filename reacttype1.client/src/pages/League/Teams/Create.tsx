@@ -58,9 +58,7 @@ const TeamsCreate = () => {
             queryClient.invalidateQueries({ queryKey: ['teamlist', league.id] });
             navigate("/League/Teams");
         },
-        onError: (error: unknown) => {
-            setErrorMsg(error instanceof Error ? error.message : String(error));
-        }
+        
     });
 
     
@@ -155,13 +153,20 @@ const TeamsCreate = () => {
                         </td>
                     </tr>
                     <tr>
-                        <td colSpan={1}>
+                        <td colSpan={2}>
                         {errors.skip && <p className="errorMessage">skip: {errors.skip.message}</p>}
                         {errors.viceSkip && <p className="errorMessage">viceskip: {errors.viceSkip.message}</p>}
                         {errors.lead && <p className="errorMessage">lead: {errors.lead.message}</p>}
                         {errors.divisionId && <p className="errorMessage">division: {errors.divisionId.message}</p>}
                         {errors.teamNo && <p className="errorMessage">teamNo: {errors.teamNo.message}</p>}
-                        {errors.leagueid && <p className="errorMessage">leagueid:  {errors.leagueid.message}</p>}   
+                        {errors.leagueid && <p className="errorMessage">leagueid:  {errors.leagueid.message}</p>}  
+                         {mutation.isError && (
+                                    <p className="errorMessage">
+                                        {mutation.error instanceof Error
+                                            ? mutation.error.message
+                                            : "An error occurred while creating the team record."}
+                                    </p>
+                                )}
                         </td>
                     </tr>
                 </table>

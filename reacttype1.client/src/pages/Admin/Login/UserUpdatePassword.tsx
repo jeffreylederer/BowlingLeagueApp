@@ -4,7 +4,6 @@ import { UpdatePasswordData, UpdatePasswordDataScheme } from "./LoginDataTypes.t
 import { zodResolver } from '@hookform/resolvers/zod';
 import { TextInput, Button, Spinner } from "flowbite-react";
 import UserClass from "@components/UserClass";
-import { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 
 const UserUpdatePassword = () => {
@@ -18,7 +17,6 @@ const UserUpdatePassword = () => {
 
     const navigate = useNavigate();
     const user = new UserClass();
-    const [errorMsg, setErrorMsg] = useState<string>('');
 
     // Mutation for updating the password
     const mutation = useMutation({
@@ -36,9 +34,7 @@ const UserUpdatePassword = () => {
         onSuccess: () => {
             navigate(-1);
         },
-        onError: (error) => {
-            setErrorMsg(error.message || String(error));
-        },
+        
     });
 
     const onSubmit: SubmitHandler<UpdatePasswordData> = (data) => mutation.mutate(data);
@@ -73,7 +69,7 @@ const UserUpdatePassword = () => {
                     </td>
                 </tr>
                 <tr>
-                    <td colSpan={1}>
+                    <td colSpan={2}>
                         {errors.password && <p className="errorMessage">{errors.password.message}</p>}
                         {errors.confirmPassword && <p className="errorMessage">{errors.confirmPassword.message}</p>}
                         {mutation.isError && (
@@ -83,7 +79,6 @@ const UserUpdatePassword = () => {
                                     : "An error occurred while updating the password."}
                             </p>
                         )}
-                        <p className="errorMessage">{errorMsg}</p>
                     </td>
                 </tr>
             </table>

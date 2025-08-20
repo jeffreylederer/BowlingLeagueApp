@@ -3,13 +3,11 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import { UpdatePasswordData, UpdatePasswordDataScheme } from "./LoginDataTypes.tsx";
 import { zodResolver } from '@hookform/resolvers/zod';
 import { TextInput, Button, Spinner } from "flowbite-react";
-import { useState } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 
 const UpdateRecoverPassword = () => {
     const location = useLocation();
     const id: string = location.search.substring(4);
-    const [errorMsg, setErrorMsg] = useState<string | null>('');
     const navigate = useNavigate();
 
     const {
@@ -50,9 +48,7 @@ const UpdateRecoverPassword = () => {
         onSuccess: () => {
             navigate("/Login");
         },
-        onError: (error) => {
-            setErrorMsg(error.message || String(error));
-        },
+        
     });
 
     const onSubmit: SubmitHandler<UpdatePasswordData> = (formData) => mutation.mutate(formData);
@@ -107,7 +103,6 @@ const UpdateRecoverPassword = () => {
                                             : "An error occurred while updating the password."}
                                     </p>
                                 )}
-                                <p>{errorMsg}</p>
                             </td>
                         </tr>
                     </table>

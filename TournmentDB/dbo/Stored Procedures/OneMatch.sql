@@ -11,9 +11,9 @@ case
 	else m11.[NickName] + ', '+ m12.[NickName] + ', '+ m13.[NickName]
 end as team1,
 case
-	when m22.[NickName] is null and m23.[NickName] is null then m21.[NickName]
-    when m22.[NickName] is null then  m21.[NickName] + ', '+ m23.[NickName]
-	else  m21.[NickName] + ', '+ m22.[NickName] + ', '+ m23.[NickName]
+	when l.TeamSize = 1 then m21.[NickName]
+    when l.TeamSize = 2  then  m21.[NickName] + ', '+ m23.[NickName]
+	else m21.[NickName] + ', '+ m22.[NickName] + ', '+ m23.[NickName]
 end as team2,
 
 dbo.HasWheelChair(m12.Wheelchair, m12.Wheelchair, m13.Wheelchair) as wheelchair1,
@@ -24,7 +24,8 @@ m.ForFeitId,
 m.WeekId,
 t1.TeamNo as Team1No,
 t2.TeamNo as Team2No,
-s.GameDate
+s.GameDate,
+m.[Version]
 
       
   FROM [dbo].[Match] m
@@ -41,7 +42,7 @@ s.GameDate
 
   join membership m11 on p11.MembershipId = m11.id
   left outer join  membership m12 on p12.MembershipId = m12.id
-  left outer join  membership m13 on p23.MembershipId = m13.id
+  left outer join  membership m13 on p13.MembershipId = m13.id
 
   join membership m21 on p21.MembershipId = m21.id
   left outer join  membership m22 on p22.MembershipId = m22.id

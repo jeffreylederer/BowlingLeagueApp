@@ -67,9 +67,7 @@ function PlayoffsCreate() {
             queryClient.invalidateQueries({ queryKey: ['CreateMatches', weekid] });
             navigate("/League/Playoffs");
         },
-        onError: (error: unknown) => {
-            setErrorMsg(error instanceof Error ? error.message : String(error));
-        }
+        
     });
 
     function SaveSelection() {
@@ -208,6 +206,13 @@ function PlayoffsCreate() {
                 </div>
                 <DisplayTable<TeamType> data={match} columns={columns} />
                 <button onClick={() => SaveSelection()} disabled={!(data && match && data.length / 2 == match.length)}>Save Selections</button>&nbsp;  <button onClick={() => navigate(-1)}>Back to List</button>
+                {mutation.isError && (
+                    <p className="errorMessage">
+                        {mutation.error instanceof Error
+                            ? mutation.error.message
+                            : "An error occurred while creating playoff record."}
+                    </p>
+                )}
                 <p className="errorMessage">{errorMsg}</p>
             </Layout>
         );

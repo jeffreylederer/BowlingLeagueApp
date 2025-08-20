@@ -5,7 +5,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Checkbox, TextInput, Button, Spinner } from "flowbite-react";
 import Layout from "@layouts/Layout.tsx";
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useState } from 'react';
 import fetchData from '@components/fetchData.tsx';
 
 const updateLeague = async ({ id, data }: { id: number, data: UpdateFormData }) => {
@@ -24,7 +23,7 @@ const updateLeague = async ({ id, data }: { id: number, data: UpdateFormData }) 
 
 const LeagueUpdate = () => {
 
-    const [errorMsg, setErrorMsg] = useState<string>('');
+
     const location = useLocation();
     const id: number = location.state;
 
@@ -52,9 +51,7 @@ const LeagueUpdate = () => {
             queryClient.invalidateQueries({ queryKey: ['leagueslist'] });
             navigate("/Admin/Leagues");
         },
-        onError: (error: unknown) => {
-            setErrorMsg(error instanceof Error ? error.message : String(error));
-        }
+        
     });
 
     const onSubmit: SubmitHandler<UpdateFormData> = (formData) => {
@@ -149,7 +146,7 @@ const LeagueUpdate = () => {
                                 </div>
                             </td>
                         </tr>
-                        <tr><td colSpan={1}>
+                        <tr><td colSpan={2}>
                             {errors.leagueName && <p className="errorMessage">{errors.leagueName.message}</p>}
                             {errors.teamSize && <p className="errorMessage">{errors.teamSize.message}</p>}
                             {errors.winPoints && <p className="errorMessage">{errors.winPoints.message}</p>}
@@ -157,8 +154,13 @@ const LeagueUpdate = () => {
                             {errors.byePoints && <p className="errorMessage">{errors.byePoints.message}</p>}
                             {errors.startWeek && <p className="errorMessage">{errors.startWeek.message}</p>}
                             {errors.divisions && <p className="errorMessage">{errors.divisions.message}</p>}
-                            <p className="errorMessage">{errorMsg}</p>
-                            {mutation.isError && <p className="errorMessage">{(mutation.error as Error).message}</p>}
+                            {mutation.isError && (
+                                <p className="errorMessage">
+                                    {mutation.error instanceof Error
+                                        ? mutation.error.message
+                                        : "An error occurred while updating the league record."}
+                                </p>
+                            )}
                         </td></tr>
                     </table>
                 </form>

@@ -24,7 +24,6 @@ const createPlayer = async (data: PlayerFormData) => {
 };
 
 const PlayersCreate = () => {
-    const [errorMsg, setErrorMsg] = useState<string>('');
     const navigate = useNavigate();
     const league = new LeagueClass();
     const queryClient = useQueryClient();
@@ -50,9 +49,7 @@ const PlayersCreate = () => {
             queryClient.invalidateQueries({ queryKey: ['playerslist', league.id] });
             navigate("/League/Players");
         },
-        onError: (error: unknown) => {
-            setErrorMsg(error instanceof Error ? error.message : String(error));
-        }
+        
     });
 
     const onSubmit: SubmitHandler<PlayerFormData> = (formData) => {
@@ -99,8 +96,13 @@ const PlayersCreate = () => {
                     </tr>
                     <tr>
                         <td colSpan={2}>
-                            <p className="errorMessage">{errorMsg}</p>
-                            {mutation.isError && <p className="errorMessage">{(mutation.error as Error).message}</p>}
+                            {mutation.isError && (
+                                <p className="errorMessage">
+                                    {mutation.error instanceof Error
+                                        ? mutation.error.message
+                                        : "An error occurred while creating player record."}
+                                </p>
+                            )}
                         </td>
                     </tr>
                 </table>

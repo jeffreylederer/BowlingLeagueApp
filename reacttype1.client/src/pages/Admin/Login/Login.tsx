@@ -1,7 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate, Link } from "react-router-dom";
 import { useForm, SubmitHandler } from "react-hook-form";
-import { useState } from 'react';
 import { TextInput, Button } from "flowbite-react";
 import UserClass from "@components/UserClass";
 import { SetCount } from '@components/CountMatches.tsx';
@@ -17,8 +16,7 @@ function Login() {
         resolver: zodResolver(LoginTypeSchema),
     });
     const navigate = useNavigate();
-    const [errorMsg, setErrorMsg] = useState('');
-
+ 
     // Mutation for login
     const mutation = useMutation({
         mutationFn: async (data: LoginType) => {
@@ -41,9 +39,7 @@ function Login() {
             SetCount(0);
             navigate("/");
         },
-        onError: (error) => {
-            setErrorMsg(error.message || String(error));
-        },
+        
     });
 
     const onSubmit: SubmitHandler<LoginType> = (data) => mutation.mutate(data);
@@ -63,12 +59,12 @@ function Login() {
                             <td className="Field"><TextInput type="password" {...register('password')} /></td>
                         </tr>
                         <tr>
-                            <td colSpan={1} style={{ textAlign: "center" }}>
+                            <td colSpan={2} style={{ textAlign: "center" }}>
                                 <Button type="submit" color="gray" disabled={mutation.isPending}>Submit</Button>
                             </td>
                         </tr>
                         <tr>
-                            <td colSpan={1}>
+                            <td colSpan={2}>
                                 {errors.username && <p className="errorMessage">{errors.username.message}</p>}
                                 {errors.password && <p className="errorMessage">{errors.password.message}</p>}
                                 {mutation.isError && (
@@ -78,7 +74,7 @@ function Login() {
                                             : "An error occurred during login."}
                                     </p>
                                 )}
-                                <p className='errorMessage'>{errorMsg}</p>
+                               
                             </td>
                         </tr>
                         <Link to="/RecoverPasswordRequest" >Forgot your password?</Link>

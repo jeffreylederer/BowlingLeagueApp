@@ -30,7 +30,6 @@ const ScheduleUpdate = () => {
     const league = new LeagueClass();
     const location = useLocation();
     const id: number = location.state;
-    const [errorMsg, setErrorMsg] = useState<string>('');
     const navigate = useNavigate();
     const queryClient = useQueryClient();
     const [schedule, setSchedule] = useState<UpdateFormData>();
@@ -54,9 +53,7 @@ const ScheduleUpdate = () => {
             queryClient.invalidateQueries({ queryKey: ['schedules', league.id] });
             navigate("/League/Schedule");
         },
-        onError: (error: unknown) => {
-            setErrorMsg(error instanceof Error ? error.message : String(error));
-        }
+        
     });
 
     
@@ -131,8 +128,14 @@ const ScheduleUpdate = () => {
                             </td>
                         </tr>
                     </table>
-                    <p className="errorMessage">{errorMsg}</p>
-                    {mutation.isError && <p className="errorMessage">{(mutation.error as Error).message}</p>}
+                    
+                    {mutation.isError && (
+                        <p className="errorMessage">
+                            {mutation.error instanceof Error
+                                ? mutation.error.message
+                                : "An error occurred while updating the schedule record."}
+                        </p>
+                    )}
                 </form>
             </Layout>
         );

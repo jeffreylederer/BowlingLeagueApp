@@ -53,9 +53,7 @@ const TeamUpdate = () => {
             queryClient.invalidateQueries({ queryKey: ['teamlist', league.id] });
             navigate("/League/Teams");
         },
-        onError: (error: unknown) => {
-            setErrorMsg(error instanceof Error ? error.message : String(error));
-        }
+ 
     });
 
     const {
@@ -185,7 +183,7 @@ const TeamUpdate = () => {
                             </td>
                         </tr>
                         <tr>
-                            <td colSpan={1}>
+                            <td colSpan={2}>
                                 {errors.skip && <p className="errorMessage">skip: {errors.skip.message}</p>}
                                 {errors.viceSkip && <p className="errorMessage">viceskip: {errors.viceSkip.message}</p>}
                                 {errors.lead && <p className="errorMessage">lead: {errors.lead.message}</p>}
@@ -193,14 +191,21 @@ const TeamUpdate = () => {
                                 {errors.id && <p className="errorMessage">id: {errors.id.message}</p>}
                                 {errors.teamNo && <p className="errorMessage">teamNo: {errors.teamNo.message}</p>}
                                 {errors.leagueid && <p className="errorMessage">leagueid:  {errors.leagueid.message}</p>}
+                                {errorMsg != '' && <p className="errorMessage">{errorMsg}</p>}
+                                {mutation.isError && (
+                                    <p className="errorMessage">
+                                        {mutation.error instanceof Error
+                                            ? mutation.error.message
+                                            : "An error occurred while updating the team record."}
+                                    </p>
+                                )}
                             </td>
                         </tr>
                     </table>
                     {league.teamSize < 3 && <input type="hidden" defaultValue="0" {...register("viceSkip")} />}
                     {league.teamSize < 2 && <input type="hidden" defaultValue="0" {...register("lead")} />}
                 </form>
-                <p className="errorMessage">{errorMsg}</p>
-                {mutation.isError && <p className="errorMessage">{(mutation.error as Error).message}</p>}
+               
             </Layout>
         );
     }

@@ -174,6 +174,7 @@ public partial class DbLeagueApp : DbContext
             entity.ToTable("Match");
 
             entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Version).HasDefaultValue(1);
 
             entity.HasOne(d => d.TeamNo1Navigation).WithMany(p => p.MatchTeamNo1Navigations)
                 .HasForeignKey(d => d.TeamNo1)

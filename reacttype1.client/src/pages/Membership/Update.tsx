@@ -5,12 +5,10 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Checkbox, TextInput } from "flowbite-react";
 import SubmitButton from '@components/SubmitButton.tsx'
 import Layout from '@layouts/Layout.tsx';
-import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Spinner } from "flowbite-react";
 
 const MembershipUpdate = () => {
-    const [errorMsg, setErrorMsg] = useState<string>('');
     const navigate = useNavigate();
     const location = useLocation();
     const id: number = location.state;
@@ -56,9 +54,7 @@ const MembershipUpdate = () => {
             queryClient.invalidateQueries({ queryKey: ['membership', id] });
             navigate("/Membership");
         },
-        onError: (error) => {
-            setErrorMsg(error.message || String(error));
-        },
+        
     });
 
     const onSubmit: SubmitHandler<UpdateFormData> = (formData) => mutation.mutate(formData);
@@ -130,7 +126,7 @@ const MembershipUpdate = () => {
                             </td>
                         </tr>
                         <tr>
-                            <td colSpan={1}>
+                            <td colSpan={2}>
                                 {errors.firstName && <p className="errorMessage">{errors.firstName.message}</p>}
                                 {errors.lastName && <p className="errorMessage">{errors.lastName.message}</p>}
                                 {errors.shortname && <p className="errorMessage">{errors.shortname.message}</p>}
@@ -139,10 +135,10 @@ const MembershipUpdate = () => {
                                     <p className="errorMessage">
                                         {mutation.error instanceof Error
                                             ? mutation.error.message
-                                            : "An error occurred while updating the membership."}
+                                            : "An error occurred while updating the membership record."}
                                     </p>
                                 )}
-                                <p className="errorMessage">{errorMsg}</p>
+                                
                             </td>
                         </tr>
                     </table>

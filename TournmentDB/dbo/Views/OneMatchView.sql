@@ -3,7 +3,13 @@
 
 
 
-CREATE View [dbo].[OneMatchView]
+
+
+
+
+
+
+CREATE   View [dbo].[OneMatchView]
 as
 SELECT m.[id],
 
@@ -27,7 +33,8 @@ m.ForFeitId,
 m.WeekId,
 t1.TeamNo as Team1No,
 t2.TeamNo as Team2No,
-s.GameDate
+s.GameDate,
+m.[Version]
 
       
   FROM [dbo].[Match] m

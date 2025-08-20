@@ -7,7 +7,6 @@ import LeagueClass from '@components/LeagueClass.tsx';;
 import SubmitButton from '@components/SubmitButton.tsx'
 import Layout from '@layouts/Layout.tsx';
 import { UpdateFormData } from "./UpdateFormData.tsx";
-import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 const createSchedule = async (data: FormData) => {
@@ -50,7 +49,7 @@ const ScheduleCreate = () => {
         return new Date().toLocaleDateString();
     }  
 
-    const [errorMsg, setErrorMsg] = useState<string>('');
+    
     const defaultDate: string = today();
 
     const mutation = useMutation({
@@ -59,9 +58,7 @@ const ScheduleCreate = () => {
             queryClient.invalidateQueries({ queryKey: ['schedules', league.id] });
             navigate("/League/Schedule");
         },
-        onError: (error: unknown) => {
-            setErrorMsg(error instanceof Error ? error.message : String(error));
-        }
+       
     });
 
     const onSubmit: SubmitHandler<FormData> = (data) => {
@@ -98,8 +95,14 @@ const ScheduleCreate = () => {
                         </td>
                     </tr>
                     <td colSpan={2}>
-                        <p className="errorMessage">{errorMsg}</p>
-                        {mutation.isError && <p className="errorMessage">{(mutation.error as Error).message}</p>}
+                       
+                        {mutation.isError && (
+                            <p className="errorMessage">
+                                {mutation.error instanceof Error
+                                    ? mutation.error.message
+                                    : "An error occurred while creaating schedule record."}
+                            </p>
+                        )}
                     </td>
                 </table>
             </form>

@@ -12,6 +12,7 @@ type MatchFormData = {
     team1No: number,
     team2No: number,
     gameDate: string,
+    version: number
 
 };
 

@@ -5,7 +5,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Checkbox, TextInput, Select } from "flowbite-react";
 import Layout from "@layouts/Layout.tsx";
 import SubmitButton from '@components/SubmitButton.tsx'
-import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 const UserCreate = () => {
@@ -17,7 +16,6 @@ const UserCreate = () => {
         resolver: zodResolver(FormDataSchema),
     });
     const queryClient = useQueryClient();
-    const [errorMsg, setErrorMsg] = useState('');
     const navigate = useNavigate();
 
     // Mutation for creating a user
@@ -38,9 +36,7 @@ const UserCreate = () => {
             queryClient.invalidateQueries({ queryKey: ['userslist'] });
             navigate("/Admin/Users");
         },
-        onError: (error) => {
-            setErrorMsg(error.message || String(error));
-        },
+        
     });
 
     const onSubmit: SubmitHandler<FormData> = (data) => mutation.mutate(data);
@@ -85,12 +81,18 @@ const UserCreate = () => {
                         </td>
                     </tr>
                     <tr>
-                        <td colSpan={1}>
+                        <td colSpan={2}>
                             {errors.userName && <p className="errorMessage">{errors.userName.message}</p>}
                             {errors.displayName && <p className="errorMessage">{errors.displayName.message}</p>}
                             {errors.password && <p className="errorMessage">{errors.password.message}</p>}
                             {errors.roleId && <p className="errorMessage">{errors.roleId.message}</p>}
-                            <p className='errorMessage'>{errorMsg}</p>
+                            {mutation.isError && (
+                                <p className="errorMessage">
+                                    {mutation.error instanceof Error
+                                        ? mutation.error.message
+                                        : "An error occurred while creating user record."}
+                                </p>
+                            )}
                         </td>
                     </tr>
                 </table>

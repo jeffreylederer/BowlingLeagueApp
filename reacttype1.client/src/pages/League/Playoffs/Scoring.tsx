@@ -9,28 +9,21 @@ import Layout from '@layouts/Layout.tsx';
 import convertDate from '@components/convertDate.tsx';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import SubmitButton from '@components/SubmitButton.tsx';
+import fetchData from '@components/fetchData.tsx';
 
 
 function PlayoffScoring ()  {
     const location = useLocation();
     const id: number = location.state;
     const [hidden, setHidden] = useState<boolean>(false);
-    const [errorMsg, setErrorMsg] = useState<string>('');
     const navigate = useNavigate();
     const queryClient = useQueryClient();
 
 
     // Fetch match data from API
-    const { data: match, isLoading, isError, error } = useQuery<MatchFormData>({
+    const { data: match, isLoading, isError, error} = useQuery<MatchFormData>({
         queryKey: ['match', id],
-        queryFn: async () => {
-            const response = await fetch(`/api/Matches/GetOneMatch/${id}`);
-            if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(errorText || 'Failed to fetch match');
-            }
-            return response.json();
-        },
+        queryFn: () => fetchData<MatchFormData>(`/api/Matches/GetOneMatch/${id}`),
     });
 
     // Mutation for updating match
@@ -52,11 +45,12 @@ function PlayoffScoring ()  {
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['playoffs', match?.weekId] });
+            queryClient.invalidateQueries({ queryKey: ['match', id] });
             navigate(`/League/Playoffs/ListGames?id=${match?.weekId}`);
 
         },
-        onError: (error) => {
-            setErrorMsg(error.message || String(error));
+        onError: () => {
+            queryClient.invalidateQueries({ queryKey: ['match', id] });
         },
     });
 
@@ -104,6 +98,7 @@ function PlayoffScoring ()  {
                 <form onSubmit={handleSubmit(onSubmit)} >
                     <table>
                         <input type="hidden" {...register("id", { valueAsNumber: true })} defaultValue={match.id} />
+                        <input type="hidden" {...register("version", { valueAsNumber: true })} defaultValue={match.version} />
                         <tr>
                             <td className="Label">Game Date:</td>
                             <td className="Field">{convertDate(match.gameDate)}</td>
@@ -155,7 +150,7 @@ function PlayoffScoring ()  {
                             </td>
                         </tr>
                         <tr>
-                            <td colSpan={1}>
+                            <td colSpan={2}>
                                 {errors.team1Score && <p className="errorMessage">{errors.team1Score.message}</p>}
                                 {errors.team2Score && <p className="errorMessage">{errors.team2Score.message}</p>}
                                 {mutation.isError && (
@@ -165,7 +160,7 @@ function PlayoffScoring ()  {
                                             : "An error occurred while updating the match."}
                                     </p>
                                 )}
-                                <p className="errorMessage">{errorMsg}</p>
+                               
                             </td>
                         </tr>
                     </table>

@@ -1,5 +1,4 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import { useState } from 'react';
 import { UpdateFormData } from "./UpdateFormData.tsx";
 import LeagueClass from '@components/LeagueClass.tsx';;
 import DeleteButton from '@components/DeleteButton.tsx'
@@ -35,7 +34,6 @@ const ScheduleDelete = () => {
     const league = new LeagueClass();
     const location = useLocation();
     const id: number = location.state;
-    const [errorMsg, SeterrorMsg] = useState("");
     const navigate = useNavigate();
     const queryClient = useQueryClient();
 
@@ -51,9 +49,7 @@ const ScheduleDelete = () => {
             queryClient.invalidateQueries({ queryKey: ['schedules', league.id] });
             navigate("/League/Schedule");
         },
-        onError: (error: unknown) => {
-            SeterrorMsg(error instanceof Error ? error.message : String(error));
-        }
+       
     });
 
     function deleteItem() {
@@ -99,9 +95,19 @@ const ScheduleDelete = () => {
                             <DeleteButton DeleteItem={deleteItem} disabled={mutation.isPending} />
                         </td>
                     </tr>
+                    <tr>
+                        <td colSpan={2}>
+                            {mutation.isError && (
+                                <p className="errorMessage">
+                                    {mutation.error instanceof Error
+                                        ? mutation.error.message
+                                        : "An error occurred while deleting schedule record."}
+                                </p>
+                            )}
+                        </td>
+                    </tr>
                 </table>
-                <p className="errorMessage">{errorMsg}</p>
-                {mutation.isError && <p className="errorMessage">{(mutation.error as Error).message}</p>}
+               
             </Layout>
         );
     }

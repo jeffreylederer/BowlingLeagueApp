@@ -2,14 +2,12 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { ListData } from "./ListData.tsx";
 import Layout from '@layouts/Layout.tsx';
 import DeleteButton from '@components/DeleteButton.tsx'
-import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Spinner } from "flowbite-react";
 
 const MembershipDelete = () => {
     const location = useLocation();
     const id: number = location.state;
-    const [errorMsg, setErrorMsg] = useState('');
     const navigate = useNavigate();
     const queryClient = useQueryClient();
 
@@ -41,9 +39,7 @@ const MembershipDelete = () => {
             queryClient.invalidateQueries({ queryKey: ['membershiplist'] });
             navigate("/Membership");
         },
-        onError: (error) => {
-            setErrorMsg(error.message || String(error));
-        },
+        
     });
 
     function deleteItem() {
@@ -103,7 +99,7 @@ const MembershipDelete = () => {
                             : "An error occurred while deleting the member."}
                     </p>
                 )}
-                <p>{errorMsg}</p>
+
             </Layout>
         );
     }

@@ -2,7 +2,6 @@ import { useLocation, useNavigate } from "react-router-dom";
 import LeagueClass from "@components/LeagueClass";
 import Layout from '@layouts/Layout.tsx';
 import UpdateFormData from './UpdateFormData.tsx';
-import { useState } from 'react';
 import DeleteButton from '@components/DeleteButton.tsx'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Spinner } from "flowbite-react";
@@ -22,7 +21,6 @@ const PlayersDelete = () => {
     const location = useLocation();
     const id: number = location.state;
     const league = new LeagueClass();
-    const [errorMsg, setErrorMsg] = useState('');
     const navigate = useNavigate();
     const queryClient = useQueryClient();
 
@@ -41,9 +39,7 @@ const PlayersDelete = () => {
             queryClient.invalidateQueries({ queryKey: ['playerslist', league.id] });
             navigate("/league/players");
         },
-        onError: (error: unknown) => {
-            setErrorMsg(error instanceof Error ? error.message : String(error));
-        }
+        
     });
 
     function deleteItem() {
@@ -83,8 +79,13 @@ const PlayersDelete = () => {
                         </td>
                     </tr>
                 </table>
-                <p>{errorMsg}</p>
-                {mutation.isError && <p className="errorMessage">{(mutation.error as Error).message}</p>}
+                {mutation.isError && (
+                    <p className="errorMessage">
+                        {mutation.error instanceof Error
+                            ? mutation.error.message
+                            : "An error occurred while deleteing player record."}
+                    </p>
+                )}
             </Layout>
         );
     }
