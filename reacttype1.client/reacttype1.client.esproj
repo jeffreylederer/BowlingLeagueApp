@@ -12,7 +12,4 @@
     <None Remove="src\pages\League\Matches\ScheduleHTML.tsx" />
     <None Remove="types.d.ts" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="src\hooks\" />
-  </ItemGroup>
 </Project>

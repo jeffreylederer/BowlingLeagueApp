@@ -4,8 +4,8 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import Layout from '@layouts/Layout.tsx';
 import uparrow from '@images/uparrow.png';
 import convertDate from '@components/convertDate.tsx';
-import LeagueClass from "@components/LeagueClass";
-import UserClass from '@components/UserClass.tsx';
+import useLeague from "@hooks/useLeague";
+import useLogin from '@hooks/useLogin';
 import { useQuery } from '@tanstack/react-query';
 import { Spinner } from "flowbite-react";
 import fetchData from '@components/fetchData.tsx';
@@ -16,8 +16,8 @@ import { ColumnDef } from '@tanstack/react-table';
 
 
 function GameList() {
-    const user = new UserClass();
-    const league = new LeagueClass();
+   const {user} = useLogin();
+   const {league} = useLeague();
     const permission: string = user.role;
     const allowed: boolean = (permission == "SiteAdmin" || permission == "Admin" || permission == "Scorer") ? false : true;
     const admin: boolean = (permission == "SiteAdmin" || permission == "Admin") ? false : true;

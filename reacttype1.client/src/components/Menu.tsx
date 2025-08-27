@@ -1,35 +1,27 @@
 
-import LeagueClass from "@components/LeagueClass";
-import UserClass  from "@components/UserClass";
+import useLeague from '@hooks/useLeague';
+import useLogin from '@hooks/useLogin';
 import { NavLink, useNavigate } from "react-router-dom";
 
-interface MenuProps {
-    league: LeagueClass;
-    user: UserClass;
-
-}
 
 
-function Menu({ league, user }: MenuProps) {
+function Menu() {
     const navigate = useNavigate();
-   
-    const showSiteAdmin:boolean = user && (user.role == "SiteAdmin") ;
-    const showAdmin: boolean = user && ( user.role == "Admin" || showSiteAdmin );
 
-    
-    const showLeague: boolean = (league.id > 0);
-    const username: string = user.id > 0? user.userName:  "Unknown User";
+    const { user } = useLogin();
+    const { league } = useLeague();
 
-    
-    if (user.id === 0) {
+    if (user.id == 0) {
         navigate("/Login");
     }
-       
-       
+
+    const showSiteAdmin: boolean =  user.role == "SiteAdmin";
+    const showAdmin: boolean = user.role == "Admin" || showSiteAdmin;
+    const playoffs: boolean = league.playOffs;
+    const showLeague: boolean = league.id > 0;
+    const username: string = user.id > 0 ? user.userName : "Unknown User";
 
 
-
-       
 
     return (
         <>
@@ -58,7 +50,7 @@ function Menu({ league, user }: MenuProps) {
                                     <li><NavLink className="dropdown-item" to="/League/Schedule">Schedule</NavLink></li>
                                     <li><NavLink className="dropdown-item" to="/League/Teams">Teams</NavLink></li>
                                     <li ><NavLink className="dropdown-item" to="/League/Matches?id=0">Matches</NavLink></li>
-                                    <li hidden={!league.playOffs} ><NavLink className="dropdown-item" to="/League/Playoffs">Playoffs</NavLink></li>
+                                    <li hidden={!playoffs} ><NavLink className="dropdown-item" to="/League/Playoffs">Playoffs</NavLink></li>
                                     <li ><a className="dropdown-item" target='blank' href="/League/Byes">Byes Report</a></li>
                                     <li ><a className="dropdown-item" target='blank' href="/League/ScheduleReport">Schedule Report</a></li>
                                     <li style={{ display: showAdmin ? "inline" : "none" }}>---------------------</li>

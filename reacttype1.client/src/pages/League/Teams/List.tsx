@@ -1,8 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 import { TeamType } from "./TeamType.ts";
-import { GetCount } from '@components/CountMatches.tsx';
-import LeagueClass from "@components/LeagueClass";
-import UserClass from "@components/UserClass";
+import GetCount from '@components/CountMatches';
+import useLeague from "@hooks/useLeague";
+import useLogin from '@hooks/useLogin';;
 import { Link } from 'react-router-dom';
 import Layout from '@layouts/Layout.tsx';
 import { Spinner } from "flowbite-react";
@@ -14,11 +14,12 @@ import DisplayTable from '@components/DisplayTable.tsx'; // Assuming you have a 
 
 
 const Team = () => {
-    const league = new LeagueClass();
-    const user = new UserClass();
+   const {league} = useLeague();
+    const { user } = useLogin();
     const permission: string = user.role;
     const updateAllowed: boolean = (permission == "SiteAdmin" || permission == "Admin");
-    const deleteAllowed: boolean = updateAllowed && GetCount() == 0;
+    const deleteAllowed: boolean = updateAllowed && !GetCount();
+   
 
     const { data, isLoading, error } = useQuery<TeamType[] | undefined>({
         queryKey: ['teamlist', league.id],

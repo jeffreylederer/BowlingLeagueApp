@@ -1,12 +1,14 @@
-export function GetCount(): number {
+function GetCount(): boolean {
     if (localStorage.getItem("matches") === null)
-        return 0;
+        return false;
     const value = localStorage.getItem("matches") as string;
-    return Number(value);
+    return value == 'true';
 }
 
-export function SetCount(value: number): void {
+export function SetCount(value: boolean): void {
     localStorage.setItem("matches", value.toString());
 }
+
+export default GetCount;
 
 

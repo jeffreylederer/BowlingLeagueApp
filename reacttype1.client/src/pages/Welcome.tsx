@@ -1,13 +1,14 @@
-import LeagueClass from "@components//LeagueClass.tsx";
+import useLeague from "@hooks/useLeague.tsx";
+import { SetCount } from '@components/CountMatches';
 import Layout from "@layouts/Layout.tsx";
-import UserClass from "@components/UserClass";
-import { SetCount } from '@components/CountMatches.tsx';
+import useLogin from '@hooks/useLogin';
 import { useQuery } from '@tanstack/react-query';
 import { Spinner } from "flowbite-react";
 
 function Welcome() {
-    const league = new LeagueClass();
-    const user = new UserClass();
+    const {league} = useLeague();
+    const { user } = useLogin();
+
 
     const { data, isLoading, isError, error } = useQuery<number>({
         queryKey: ['all-matches-count', league.id],
@@ -39,7 +40,8 @@ function Welcome() {
         );
 
     if (data != null) {
-        SetCount(data);
+        SetCount(data > 0);
+
         return (
             <Layout>
                 <h3>Welcome to {league.leagueName}</h3>

@@ -1,5 +1,5 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import LeagueClass from "@components/LeagueClass";
+import useLeague from "@hooks/useLeague";
 import Layout from '@layouts/Layout.tsx';
 import UpdateFormData from './UpdateFormData.tsx';
 import DeleteButton from '@components/DeleteButton.tsx'
@@ -20,7 +20,7 @@ const deletePlayer = async (id: number) => {
 const PlayersDelete = () => {
     const location = useLocation();
     const id: number = location.state;
-    const league = new LeagueClass();
+   const {league} = useLeague();
     const navigate = useNavigate();
     const queryClient = useQueryClient();
 

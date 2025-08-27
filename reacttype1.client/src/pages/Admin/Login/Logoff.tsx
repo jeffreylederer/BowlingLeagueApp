@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { useEffect } from 'react';
-import LeagueClass from "@components/LeagueClass";
-import UserClass from "@components/UserClass";
+import useLeague from "@hooks/useLeague";
+import useLogin from "@hooks/useLogin";
 
 function Logoff() {
     const navigate = useNavigate();
@@ -9,10 +9,8 @@ function Logoff() {
    
 
     useEffect(() => {
-        const user = new UserClass();
-        user.Remove();
-        const league = new LeagueClass();
-        league.Remove();
+        useLogin.getState().initialize();   
+        useLeague.getState().initialize();
         navigate("/Login");
     }, [navigate ]);
     return (

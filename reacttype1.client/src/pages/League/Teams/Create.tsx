@@ -4,7 +4,7 @@ import { FormData, FormDataSchema } from "./FormData.tsx";
 import { Membership } from "./Membership.tsx";
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
-import LeagueClass from '@components/LeagueClass.tsx';
+import useLeague from '@hooks/useLeague';
 import SubmitButton from '@components/SubmitButton.tsx'
 import Layout from '@layouts/Layout.tsx';
 import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
@@ -69,7 +69,7 @@ const TeamsCreate = () => {
     } = useForm<FormData>({
         resolver: zodResolver(FormDataSchema),
     });
-    const league = new LeagueClass();
+   const {league} = useLeague();
     const onSubmit: SubmitHandler<FormData> = (data) => {
         mutation.mutate(data);
     };

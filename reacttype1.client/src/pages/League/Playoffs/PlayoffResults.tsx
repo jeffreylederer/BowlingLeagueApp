@@ -1,11 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
-import LeagueClass from "@components/LeagueClass.tsx";
+import useLeague from "@hooks/useLeague";
 import { Spinner } from "flowbite-react";
 import fetchText from '@components/fetchText.tsx';
 import { useLocation } from "react-router-dom";
 
 function PlayoffResults() {
-    const league = new LeagueClass();
+   const {league} = useLeague();
     const location = useLocation();
     const weekid: string = location.search.substring(4);
 

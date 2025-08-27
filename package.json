@@ -15,7 +15,8 @@
     "sass": "^1.85.1",
     "vite": "^6.2.0",
     "vite-plugin-css-modules": "^0.0.1",
-    "vitest": "^3.0.8"
+    "vitest": "^3.0.8",
+    "zustand": "^5.0.8"
   },
   "devDependencies": {
     "@rollup/plugin-alias": "^5.1.1"

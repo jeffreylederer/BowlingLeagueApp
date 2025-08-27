@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { DetailsType } from "./DetailsType.tsx";
 import Layout from "@layouts/Layout.tsx";
-import UserClass from "@components/UserClass.tsx";
+import useLogin from '@hooks/useLogin';
 import { useQuery } from '@tanstack/react-query';
 import DisplayTable from '@components/DisplayTable';
 import { ColumnDef } from '@tanstack/react-table';
@@ -10,7 +10,7 @@ import { useMemo } from 'react';
 import { Spinner } from "flowbite-react";
 
 function Users() {
-    const user = new UserClass();
+   const {user} = useLogin();
     const permission: string = user.role;
     const allowed: boolean = permission !== "SiteAdmin";
 

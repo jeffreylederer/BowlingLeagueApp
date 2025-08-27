@@ -3,10 +3,10 @@ import { useState, useEffect} from 'react';
 import { useForm, SubmitHandler } from "react-hook-form";
 import { UpdateFormData } from "./UpdateFormData.tsx";
 import { Checkbox, TextInput } from "flowbite-react";
-import LeagueClass from '@components/LeagueClass.tsx';
+import useLeague from '@hooks/useLeague';
 import SubmitButton from '@components/SubmitButton.tsx'
 import Layout from '@layouts/Layout.tsx';
-import { GetCount } from '@components/CountMatches.tsx';
+import GetCount from '@components/CountMatches';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 
@@ -27,7 +27,7 @@ const updateSchedule = async ({ id, data }: { id: number, data: UpdateFormData }
 };
 
 const ScheduleUpdate = () => {
-    const league = new LeagueClass();
+   const {league} = useLeague();
     const location = useLocation();
     const id: number = location.state;
     const navigate = useNavigate();
@@ -105,7 +105,7 @@ const ScheduleUpdate = () => {
                         <tr >
                             <td className="Label">Game Date:</td>
                             <td className="Field">
-                                <TextInput type="date" {...register('gameDate', { valueAsDate: false })} defaultValue={today()} disabled={GetCount() > 0} />
+                                <TextInput type="date" {...register('gameDate', { valueAsDate: false })} defaultValue={today()} disabled={GetCount()} />
                             </td>
                         </tr>
                         
@@ -113,7 +113,7 @@ const ScheduleUpdate = () => {
                         <tr>
                             <td className="Label">Playoffs:</td>
                             <td className="Field">
-                                <Checkbox id='playOffs'  {...register('playOffs')} defaultChecked={schedule.playOffs} disabled={GetCount() > 0 }  />
+                                <Checkbox id='playOffs'  {...register('playOffs')} defaultChecked={schedule.playOffs} disabled={GetCount()}  />
                             </td>
                         </tr>
                         <tr>

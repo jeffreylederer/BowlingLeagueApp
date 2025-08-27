@@ -6,12 +6,12 @@ import Layout from '@layouts/Layout.tsx';
 import SetupType from './SetupType.ts';    
 import PlayOffMatchType from './PlayOffMatchType.ts';
 import { useLocation, useNavigate } from "react-router-dom";
-import LeagueClass from "@components/LeagueClass";
+import useLeague from "@hooks/useLeague";
 
 function PlayoffsUpdate ()  {
     const location = useLocation();
     const weekid: number = location.state;
-    const league = new LeagueClass();
+   const {league} = useLeague();
     const navigate = useNavigate();
     
     const [matches, setMatches] = useState<PlayOffMatchType[] | undefined>(undefined);

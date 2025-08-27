@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { UpdateFormData } from "@pages/League/Schedule/UpdateFormData.tsx";
-import LeagueClass from "@components/LeagueClass";
+import useLeague from "@hooks/useLeague";
 import Layout from '@layouts/Layout.tsx';
 import { useQuery } from '@tanstack/react-query';
 import { Spinner } from "flowbite-react";
@@ -9,8 +9,8 @@ import fetchData from '@components/fetchData';
 import PlayoffGamesType from './PlayoffGamesType.tsx';
 
 function Playoffs() {
-    //const user = new UserClass();
-    const league = new LeagueClass();
+    //cont {user } = useLogin();
+   const {league} = useLeague();
     //const permission: string = user.role;
     //const updateAllowed: boolean = (permission == "SiteAdmin" || permission == "Admin");
 

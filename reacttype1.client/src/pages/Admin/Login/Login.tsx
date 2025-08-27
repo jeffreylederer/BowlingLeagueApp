@@ -2,10 +2,10 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate, Link } from "react-router-dom";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { TextInput, Button } from "flowbite-react";
-import UserClass from "@components/UserClass";
-import { SetCount } from '@components/CountMatches.tsx';
-import { LoginType, LoginTypeSchema } from './LoginDataTypes.tsx';
+import { SetCount } from '@components/CountMatches';
+import useLogin from '@hooks/useLogin';
 import { useMutation } from '@tanstack/react-query';
+import { LoginType, LoginTypeSchema } from './LoginDataTypes';  
 
 function Login() {
     const {
@@ -15,8 +15,10 @@ function Login() {
     } = useForm<LoginType>({
         resolver: zodResolver(LoginTypeSchema),
     });
+
     const navigate = useNavigate();
- 
+
+     
     // Mutation for login
     const mutation = useMutation({
         mutationFn: async (data: LoginType) => {
@@ -34,11 +36,11 @@ function Login() {
             return response.json();
         },
         onSuccess: (returnData) => {
-            const user = new UserClass();
-            user.Initialize(returnData);
-            SetCount(0);
+            useLogin.getState().update(returnData); 
+            SetCount(false);
             navigate("/");
         },
+         
         
     });
 

@@ -1,9 +1,9 @@
 import { Link } from 'react-router-dom';
 import { UpdateFormData } from "./UpdateFormData.tsx";
-import LeagueClass from "@components/LeagueClass";
-import UserClass from "@components/UserClass";
+import useLeague from "@hooks/useLeague";
+import useLogin from '@hooks/useLogin';;
 import Layout from '@layouts/Layout.tsx';
-import { GetCount } from '@components/CountMatches.tsx';
+import GetCount from '@components/CountMatches';
 import { useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import { Spinner } from "flowbite-react";
@@ -12,11 +12,11 @@ import { ColumnDef } from '@tanstack/react-table';
 import fetchData from '@components/fetchData';
 
 function Schedule() {
-    const user = new UserClass();
-    const league = new LeagueClass();
+   const {user} = useLogin();
+    const { league } = useLeague();
     const permission: string = user.role;
     const updateAllowed: boolean = (permission == "SiteAdmin" || permission == "Admin");
-    const allowed: boolean = updateAllowed && GetCount() == 0;
+    const allowed: boolean = updateAllowed && !GetCount();
 
     const { data, isLoading, error } = useQuery<UpdateFormData[]>({
         queryKey: ['schedules', league.id],

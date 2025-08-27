@@ -51,7 +51,10 @@ const LeagueUpdate = () => {
             queryClient.invalidateQueries({ queryKey: ['leagueslist'] });
             navigate("/Admin/Leagues");
         },
-        
+        onError: () => {
+            return queryClient.invalidateQueries({ queryKey: ['match', id] });
+        }
+            
     });
 
     const onSubmit: SubmitHandler<UpdateFormData> = (formData) => {

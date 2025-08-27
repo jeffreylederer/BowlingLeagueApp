@@ -1,6 +1,6 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import LeagueClass from '@components/LeagueClass.tsx';
+import useLeague from '@hooks/useLeague';
 import { TeamType } from "./TeamType.ts";
 import DeleteButton from '@components/DeleteButton.tsx'
 import { Spinner } from "flowbite-react";
@@ -23,7 +23,7 @@ const TeamDelete = () => {
   
     const navigate = useNavigate();
     const queryClient = useQueryClient();
-    const league = new LeagueClass();
+   const {league} = useLeague();
 
     // useMutation for deleting team
     const mutation = useMutation({

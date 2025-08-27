@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import UpdateFormData from "./UpdateFormData.tsx";
-import LeagueClass from "@components/LeagueClass";
-import UserClass from "@components/UserClass";
+import useLeague from "@hooks/useLeague";
+import useLogin from '@hooks/useLogin';;
 import Layout from '@layouts/Layout.tsx';
 import { useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
@@ -11,8 +11,8 @@ import { ColumnDef } from '@tanstack/react-table';
 import { Spinner } from "flowbite-react";
 
 function Players() {
-    const user = new UserClass();
-    const league = new LeagueClass();
+   const {user} = useLogin();
+   const {league} = useLeague();
     const permission: string = user.role;
     const display: boolean = (permission == "SiteAdmin" || permission == "Admin");
 

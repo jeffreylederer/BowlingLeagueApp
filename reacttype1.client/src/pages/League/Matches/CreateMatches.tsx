@@ -1,13 +1,14 @@
 import { useQuery } from '@tanstack/react-query';
-import LeagueClass from "@components/LeagueClass.tsx";
+import useLeague from "@hooks/useLeague";
 import Layout from '@layouts/Layout.tsx';
-import { SetCount } from '@components/CountMatches.tsx';
+import { SetCount } from '@components/CountMatches';
 import fetchText from '@components/fetchText.tsx';
 import { Spinner } from "flowbite-react";
 
 
 const CreateMatches = () => {
-    const league = new LeagueClass();
+    const { league } = useLeague();
+
     
 
     const { data, isLoading, isError, error } = useQuery<string>({
@@ -32,7 +33,7 @@ const CreateMatches = () => {
     }
 
     if (data != undefined && data == 'Created matches') {
-        SetCount(1);
+        SetCount(true);
         
     }
     return (

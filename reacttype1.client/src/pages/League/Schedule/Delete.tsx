@@ -1,6 +1,6 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { UpdateFormData } from "./UpdateFormData.tsx";
-import LeagueClass from '@components/LeagueClass.tsx';;
+import useLeague from '@hooks/useLeague';;
 import DeleteButton from '@components/DeleteButton.tsx'
 import Layout from '@layouts/Layout.tsx';
 import convertDate from '@components/convertDate.tsx';
@@ -31,7 +31,7 @@ const deleteSchedule = async (id: number) => {
 };
 
 const ScheduleDelete = () => {
-    const league = new LeagueClass();
+   const {league} = useLeague();
     const location = useLocation();
     const id: number = location.state;
     const navigate = useNavigate();

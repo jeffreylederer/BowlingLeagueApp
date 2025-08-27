@@ -3,7 +3,7 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import { UpdatePasswordData, UpdatePasswordDataScheme } from "./LoginDataTypes.tsx";
 import { zodResolver } from '@hookform/resolvers/zod';
 import { TextInput, Button, Spinner } from "flowbite-react";
-import UserClass from "@components/UserClass";
+import useLogin from '@hooks/useLogin';;
 import { useMutation } from '@tanstack/react-query';
 
 const UserUpdatePassword = () => {
@@ -16,7 +16,7 @@ const UserUpdatePassword = () => {
     });
 
     const navigate = useNavigate();
-    const user = new UserClass();
+   const {user} = useLogin();
 
     // Mutation for updating the password
     const mutation = useMutation({

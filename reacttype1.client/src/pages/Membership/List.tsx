@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { TableData } from './TableData.ts';
-import UserClass from "@components/UserClass.tsx";
+import useLogin from '@hooks/useLogin';
 import Layout from '@layouts/Layout.tsx';
 import { useQuery } from '@tanstack/react-query';
 import { Spinner } from "flowbite-react";
@@ -9,7 +9,7 @@ import { useMemo } from 'react';
 import DisplayTablePaging from '@components/DisplayTablePaging.tsx'; // Assuming you have a DisplayTable component  
 
 function Membership() {
-    const user = new UserClass();
+   const {user} = useLogin();
     const hideAddButton: boolean = !(user.role == "SiteAdmin" || user.role == "Admin");
 
     const { data, isLoading, isError, error } = useQuery<TableData[]>({

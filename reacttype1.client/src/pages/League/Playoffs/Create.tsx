@@ -5,7 +5,7 @@ import { Spinner } from "flowbite-react";
 import Layout from '@layouts/Layout.tsx';
 import SetupType from './SetupType.ts';
 import { useLocation, useNavigate } from "react-router-dom";
-import LeagueClass from "@components/LeagueClass";
+import useLeague from "@hooks/useLeague";
 import TeamType from './TeamType.ts';  
 import { ColumnDef } from '@tanstack/react-table';
 import DisplayTable from '@components/DisplayTable';
@@ -18,7 +18,7 @@ function PlayoffsCreate() {
 
     const location = useLocation();
     const weekid: number = location.state;
-    const league = new LeagueClass();
+   const {league} = useLeague();
     const navigate = useNavigate();
 
     const [errorMsg, setErrorMsg] = useState<string>('');

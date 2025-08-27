@@ -3,7 +3,7 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import { FormData, FormDataSchema } from "./FormData.tsx";
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Checkbox, TextInput } from "flowbite-react";
-import LeagueClass from '@components/LeagueClass.tsx';;
+import useLeague from '@hooks/useLeague';;
 import SubmitButton from '@components/SubmitButton.tsx'
 import Layout from '@layouts/Layout.tsx';
 import { UpdateFormData } from "./UpdateFormData.tsx";
@@ -29,7 +29,7 @@ const ScheduleCreate = () => {
         resolver: zodResolver(FormDataSchema),
     });
     const navigate = useNavigate();
-    const league = new LeagueClass();
+   const {league} = useLeague();
     const queryClient = useQueryClient();
 
     const zeroPad = (num: number): string => {

@@ -3,12 +3,12 @@ import { useState } from 'react';
 import { useForm, SubmitHandler } from "react-hook-form";
 import { UpdateFormData, UpdateFormDataSchema } from "./UpdateFormData.tsx";
 import { zodResolver } from '@hookform/resolvers/zod';
-import LeagueClass from '@components/LeagueClass.tsx';
+import useLeague from '@hooks/useLeague';
 import { Membership } from "./Membership.tsx";
 import Layout from '@layouts/Layout.tsx';
 import SubmitButton from '@components/SubmitButton.tsx'
 import { TeamType } from './TeamType.ts';
-import { GetCount } from '@components/CountMatches.tsx';
+import GetCount from '@components/CountMatches';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Spinner } from "flowbite-react";
 import fetchData from '@components/fetchData.tsx';
@@ -26,7 +26,7 @@ const updateTeam = async ({ id, data }: { id: string, data: UpdateFormData }) =>
 };
 
 const TeamUpdate = () => {
-    const league = new LeagueClass();
+    const { league } = useLeague();
     const [errorMsg, setErrorMsg] = useState("");
     const location = useLocation();
     const id: string = location.state;
@@ -163,7 +163,7 @@ const TeamUpdate = () => {
                                     )
                                 </select></td>
                         </tr>
-                        <tr hidden={GetCount() > 0} >
+                        <tr hidden={GetCount()} >
                             <td className="Label">Division:</td>
                             <td>
                                 <select defaultValue={data.division} {...register("divisionId")}>
@@ -174,7 +174,7 @@ const TeamUpdate = () => {
                                 </select>
                             </td>
                         </tr>
-                        <tr hidden={GetCount() == 0} >
+                        <tr hidden={GetCount()} >
                             <input type="hidden" value={data.division} {...register("divisionId")} />
                         </tr>
                         <tr>

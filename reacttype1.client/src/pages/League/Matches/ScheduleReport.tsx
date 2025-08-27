@@ -1,10 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
-import LeagueClass from "@components/LeagueClass.tsx";
+import useLeague from "@hooks/useLeague";
 import { Spinner } from "flowbite-react";
 import fetchText from '@components/fetchText.tsx';
 
 function ScheduleReport() {
-    const league = new LeagueClass();
+   const {league} = useLeague();
 
     const { data, isLoading, isError, error } = useQuery<string>({
         queryKey: ['ScheduleReport-pdf', league.id],
